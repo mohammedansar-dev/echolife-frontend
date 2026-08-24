@@ -1,0 +1,186 @@
+.ech-toast {
+  position: fixed;
+
+  top: 82px;
+  right: 24px;
+
+  z-index: 2000;
+
+  width: min(380px, calc(100vw - 32px));
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  box-sizing: border-box;
+
+  padding: 12px 13px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+
+  animation: ech-toast-in 0.2s ease;
+}
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.ech-toast-icon {
+  width: 29px;
+  height: 29px;
+
+  flex: 0 0 29px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.ech-toast-content {
+  min-width: 0;
+
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.ech-toast-content strong {
+  color: #334155;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ech-toast-content span {
+  color: #64748b;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   CLOSE
+========================================================= */
+
+.ech-toast-close {
+  width: 25px;
+  height: 25px;
+
+  flex: 0 0 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #94a3b8;
+
+  cursor: pointer;
+}
+
+.ech-toast-close:hover {
+  background: #f8fafc;
+  color: #475569;
+}
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
+.ech-toast-success {
+  border-color: #bbf7d0;
+}
+
+.ech-toast-success .ech-toast-icon {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.ech-toast-error {
+  border-color: #fecaca;
+}
+
+.ech-toast-error .ech-toast-icon {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* =========================================================
+   WARNING
+========================================================= */
+
+.ech-toast-warning {
+  border-color: #fed7aa;
+}
+
+.ech-toast-warning .ech-toast-icon {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.ech-toast-info {
+  border-color: #bfdbfe;
+}
+
+.ech-toast-info .ech-toast-icon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes ech-toast-in {
+  from {
+    opacity: 0;
+
+    transform: translateX(15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .ech-toast {
+    top: 72px;
+    right: 16px;
+
+    width: calc(100vw - 32px);
+  }
+}

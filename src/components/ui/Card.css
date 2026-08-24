@@ -1,0 +1,151 @@
+/* =========================================================
+   ECHOLIFE CARD
+========================================================= */
+
+.ech-card {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  border: 1px solid #e3e8ef;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.ech-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 19px 21px 17px;
+
+  border-bottom: 1px solid #edf1f5;
+
+  background: #ffffff;
+}
+
+.ech-card-heading {
+  min-width: 0;
+}
+
+.ech-card-title {
+  margin: 0;
+
+  color: #172033;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  line-height: 1.4;
+
+  letter-spacing: -0.01em;
+}
+
+.ech-card-description {
+  max-width: 680px;
+
+  margin: 5px 0 0;
+
+  color: #8491a3;
+
+  font-size: 11px;
+
+  line-height: 1.55;
+}
+
+.ech-card-action {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+}
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.ech-card-body {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   PADDING
+========================================================= */
+
+.ech-card-small .ech-card-body {
+  padding: 15px;
+}
+
+.ech-card-medium .ech-card-body {
+  padding: 20px 21px;
+}
+
+.ech-card-large .ech-card-body {
+  padding: 25px;
+}
+
+/* =========================================================
+   CLICKABLE
+========================================================= */
+
+.ech-card-clickable {
+  cursor: pointer;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.ech-card-clickable:hover {
+  border-color: #cbd5e1;
+
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+
+  transform: translateY(-1px);
+}
+
+.ech-card-clickable:focus-visible {
+  outline: none;
+
+  border-color: #93c5fd;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .ech-card-header {
+    padding: 16px;
+  }
+
+  .ech-card-medium .ech-card-body {
+    padding: 17px 16px;
+  }
+
+  .ech-card-large .ech-card-body {
+    padding: 19px 16px;
+  }
+
+  .ech-card-title {
+    font-size: 13px;
+  }
+
+  .ech-card-description {
+    font-size: 10px;
+  }
+}

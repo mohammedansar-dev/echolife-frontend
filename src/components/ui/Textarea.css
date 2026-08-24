@@ -1,0 +1,162 @@
+.ech-textarea-wrapper {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+.ech-textarea-label {
+  display: flex;
+  align-items: center;
+
+  gap: 3px;
+
+  color: #475569;
+
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.ech-textarea-required {
+  color: #dc2626;
+}
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+.ech-textarea-field {
+  width: 100%;
+  min-height: 110px;
+
+  box-sizing: border-box;
+
+  padding: 10px 11px;
+
+  resize: vertical;
+
+  border: 1px solid #dbe2ea;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #334155;
+
+  font-family: var(--font-family);
+
+  font-size: 12px;
+
+  line-height: 1.55;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ech-textarea-field::placeholder {
+  color: #b0bac7;
+}
+
+.ech-textarea-field:hover:not(:disabled) {
+  border-color: #cbd5e1;
+}
+
+.ech-textarea-field:focus {
+  border-color: #93c5fd;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.07);
+}
+
+.ech-textarea-field:disabled {
+  background: #f8fafc;
+
+  color: #94a3b8;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.ech-textarea-field.ech-textarea-error {
+  border-color: #fca5a5;
+}
+
+.ech-textarea-field.ech-textarea-error:focus {
+  border-color: #f87171;
+
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.07);
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ech-textarea-footer {
+  min-height: 15px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+/* =========================================================
+   HINT / ERROR
+========================================================= */
+
+.ech-textarea-hint,
+.ech-textarea-error-message {
+  margin: 0;
+
+  font-size: 10px;
+
+  line-height: 1.45;
+}
+
+.ech-textarea-hint {
+  color: #94a3b8;
+}
+
+.ech-textarea-error-message {
+  color: #dc2626;
+}
+
+/* =========================================================
+   COUNTER
+========================================================= */
+
+.ech-textarea-counter {
+  flex-shrink: 0;
+
+  color: #a0acba;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .ech-textarea-field {
+    min-height: 120px;
+
+    font-size: 12px;
+  }
+
+  .ech-textarea-footer {
+    flex-direction: column;
+
+    gap: 3px;
+  }
+}

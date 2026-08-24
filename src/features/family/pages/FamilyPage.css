@@ -1,0 +1,807 @@
+/* =========================================================
+   PAGE
+========================================================= */
+
+.family-page {
+  width: 100%;
+  min-height: 100%;
+
+  padding: 28px 32px 48px;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.family-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 26px;
+}
+
+.family-page-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.family-page-title-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.family-page-title h1 {
+  margin: 0;
+
+  color: #101828;
+
+  font-size: 25px;
+  line-height: 1.2;
+
+  font-weight: 700;
+}
+
+.family-page-title p {
+  margin: 5px 0 0;
+
+  color: #667085;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.family-add-button {
+  height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 15px;
+
+  border: 1px solid #2563eb;
+  border-radius: 9px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.family-add-button:hover {
+  background: #1d4ed8;
+}
+
+.family-add-button:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.family-stats {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 20px;
+}
+
+.family-stat-card {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  min-height: 76px;
+
+  padding: 16px 18px;
+
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+
+  background: #ffffff;
+}
+
+.family-stat-icon {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.family-stat-card span {
+  display: block;
+
+  color: #667085;
+
+  font-size: 12px;
+}
+
+.family-stat-card strong {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #101828;
+
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.family-toolbar {
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 26px;
+}
+
+.family-search {
+  width: min(440px, 100%);
+
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 0 12px;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #98a2b3;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.family-search:focus-within {
+  border-color: #84adff;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.family-search input {
+  width: 100%;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #101828;
+
+  font-size: 13px;
+}
+
+.family-search input::placeholder {
+  color: #98a2b3;
+}
+
+.family-search button {
+  width: 25px;
+  height: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #98a2b3;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.family-members-section {
+  width: 100%;
+}
+
+.family-section-heading {
+  margin-bottom: 15px;
+}
+
+.family-section-heading h2 {
+  margin: 0;
+
+  color: #101828;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.family-section-heading p {
+  margin: 4px 0 0;
+
+  color: #98a2b3;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.family-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+  gap: 16px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.family-member-card {
+  min-width: 0;
+
+  border: 1px solid #eaecf0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.family-member-card:hover {
+  border-color: #d0d5dd;
+
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   MAIN MEMBER BUTTON
+========================================================= */
+
+.family-member-main {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 13px;
+
+  padding: 18px;
+
+  border: 0;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.family-member-avatar {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.family-member-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.family-member-info {
+  min-width: 0;
+}
+
+.family-member-relationship {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #667085;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+.family-member-info h3 {
+  margin: 0;
+
+  color: #101828;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.family-member-info p {
+  display: -webkit-box;
+
+  margin: 5px 0 0;
+
+  color: #667085;
+
+  font-size: 12px;
+  line-height: 1.45;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   META
+========================================================= */
+
+.family-member-meta {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  padding: 0 18px 15px;
+}
+
+.family-member-meta span {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #667085;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.family-member-meta svg {
+  flex-shrink: 0;
+
+  color: #98a2b3;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.family-member-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding: 12px 18px;
+
+  border-top: 1px solid #f2f4f7;
+
+  background: #fcfcfd;
+}
+
+.family-member-footer > button:first-child {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #2563eb;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.family-card-delete {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #eaecf0;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #98a2b3;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.family-card-delete:hover {
+  background: #fef3f2;
+
+  border-color: #fecdca;
+
+  color: #b42318;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.family-empty {
+  min-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  border: 1px dashed #d0d5dd;
+  border-radius: 14px;
+
+  background: #fcfcfd;
+
+  text-align: center;
+}
+
+.family-empty-icon {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.family-empty h3 {
+  margin: 14px 0 5px;
+
+  color: #101828;
+
+  font-size: 15px;
+}
+
+.family-empty p {
+  max-width: 360px;
+
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.family-empty button {
+  height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-top: 16px;
+
+  padding: 0 13px;
+
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.family-loading {
+  min-height: 400px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+}
+
+.family-loading p {
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 13px;
+}
+
+.family-loading-spinner {
+  width: 24px;
+  height: 24px;
+
+  border: 2px solid #eaecf0;
+  border-top-color: #2563eb;
+
+  border-radius: 50%;
+
+  animation: family-spin 0.7s linear infinite;
+}
+
+@keyframes family-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   DELETE MODAL
+========================================================= */
+
+.family-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(16, 24, 40, 0.42);
+}
+
+.family-delete-modal {
+  position: relative;
+
+  width: min(420px, 100%);
+
+  padding: 26px;
+
+  border: 1px solid #eaecf0;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
+}
+
+.family-modal-close {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #667085;
+
+  cursor: pointer;
+}
+
+.family-delete-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #fef3f2;
+
+  color: #b42318;
+}
+
+.family-delete-modal h2 {
+  margin: 16px 0 7px;
+
+  color: #101828;
+
+  font-size: 18px;
+}
+
+.family-delete-modal p {
+  margin: 0;
+
+  color: #667085;
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.family-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  margin-top: 22px;
+}
+
+.family-delete-actions button {
+  height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 0 13px;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #344054;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.family-delete-actions button.danger {
+  border-color: #d92d20;
+
+  background: #d92d20;
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+  .family-page {
+    padding: 22px 20px 40px;
+  }
+
+  .family-page-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .family-add-button {
+    width: 100%;
+  }
+
+  .family-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .family-page {
+    padding: 18px 15px 32px;
+  }
+
+  .family-page-title h1 {
+    font-size: 22px;
+  }
+
+  .family-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .family-delete-modal {
+    padding: 22px;
+  }
+}

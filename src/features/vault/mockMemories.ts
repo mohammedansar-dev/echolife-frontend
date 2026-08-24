@@ -1,0 +1,48 @@
+import type { Memory } from "./memory.types";
+
+export const mockMemories: Memory[] = [
+  {
+    id: "memory-1",
+    title: "Family Trip to Goa",
+    description: "A beautiful family trip filled with unforgettable moments.",
+    type: "photo",
+    fileName: "goa-family-trip.jpg",
+    date: "2025-12-24",
+    category: "Travel",
+    people: ["Dad", "Mom", "Ansar"],
+    size: "3.2 MB",
+  },
+  {
+    id: "memory-2",
+    title: "Birthday Celebration",
+    description: "A special birthday celebration with the family.",
+    type: "video",
+    fileName: "birthday-celebration.mp4",
+    date: "2025-10-14",
+    category: "Celebration",
+    people: ["Family"],
+    size: "24.8 MB",
+  },
+  {
+    id: "memory-3",
+    title: "Grandfather's Story",
+    description: "An audio recording of a memorable family story.",
+    type: "audio",
+    fileName: "grandfather-story.mp3",
+    date: "2025-08-09",
+    category: "Family",
+    people: ["Grandfather"],
+    size: "8.4 MB",
+  },
+  {
+    id: "memory-4",
+    title: "Family Documents",
+    description: "Important family documents preserved safely.",
+    type: "document",
+    fileName: "family-documents.pdf",
+    date: "2025-07-18",
+    category: "Personal",
+    people: ["Family"],
+    size: "1.8 MB",
+  },
+];

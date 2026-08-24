@@ -1,0 +1,100 @@
+.ech-empty-state {
+  width: 100%;
+  min-height: 260px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding: 28px 20px;
+
+  text-align: center;
+}
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.ech-empty-state-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 3px;
+
+  border-radius: 12px;
+
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.ech-empty-state-title {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.ech-empty-state-description {
+  max-width: 380px;
+
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+   ACTION
+========================================================= */
+
+.ech-empty-state-action {
+  margin-top: 7px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+  .ech-empty-state {
+    min-height: 220px;
+
+    padding: 22px 15px;
+  }
+
+  .ech-empty-state-title {
+    font-size: 13px;
+  }
+
+  .ech-empty-state-description {
+    font-size: 10px;
+  }
+}

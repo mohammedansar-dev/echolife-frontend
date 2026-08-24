@@ -1,0 +1,223 @@
+.ech-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 42, 0.35);
+
+  backdrop-filter: blur(3px);
+
+  animation: ech-modal-overlay-in 0.15s ease;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.ech-modal {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow: 0 20px 55px rgba(15, 23, 42, 0.16);
+
+  animation: ech-modal-in 0.18s ease;
+}
+
+/* SIZES */
+
+.ech-modal-small {
+  max-width: 360px;
+}
+
+.ech-modal-medium {
+  max-width: 480px;
+}
+
+.ech-modal-large {
+  max-width: 680px;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.ech-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 18px 19px;
+
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ech-modal-heading {
+  min-width: 0;
+}
+
+.ech-modal-heading h2 {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  line-height: 1.35;
+}
+
+.ech-modal-heading p {
+  max-width: 470px;
+
+  margin: 5px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+/* CLOSE */
+
+.ech-modal-close {
+  width: 31px;
+  height: 31px;
+
+  flex: 0 0 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #94a3b8;
+
+  cursor: pointer;
+}
+
+.ech-modal-close:hover {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.ech-modal-close:focus-visible {
+  outline: none;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.ech-modal-body {
+  padding: 19px;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ech-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  padding: 13px 19px;
+
+  border-top: 1px solid #f1f5f9;
+
+  background: #fafbfc;
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes ech-modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ech-modal-in {
+  from {
+    opacity: 0;
+
+    transform: translateY(7px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .ech-modal-overlay {
+    align-items: flex-end;
+
+    padding: 10px;
+  }
+
+  .ech-modal {
+    max-width: 100%;
+
+    border-radius: 14px;
+  }
+
+  .ech-modal-header {
+    padding: 16px;
+  }
+
+  .ech-modal-body {
+    padding: 16px;
+  }
+
+  .ech-modal-footer {
+    padding: 12px 16px;
+  }
+
+  .ech-modal-heading h2 {
+    font-size: 15px;
+  }
+
+  .ech-modal-heading p {
+    font-size: 10px;
+  }
+}

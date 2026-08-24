@@ -1,0 +1,655 @@
+/* =========================================================
+   PAGE
+========================================================= */
+
+.upload-memory-page {
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 30px 36px 50px;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.upload-memory-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.upload-memory-header-left {
+  min-width: 0;
+}
+
+.upload-memory-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 15px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.upload-memory-back:hover {
+  color: #2563eb;
+}
+
+.upload-memory-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.upload-memory-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.upload-memory-title-icon {
+  width: 47px;
+  height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #dbeafe;
+  border-radius: 13px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.upload-memory-title h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.upload-memory-title p {
+  margin: 5px 0 0;
+  color: #8491a3;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.upload-memory-close {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.upload-memory-close:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #172033;
+  transform: translateY(-1px);
+}
+
+.upload-memory-close:active {
+  transform: translateY(0);
+}
+
+.upload-memory-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.upload-memory-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 11px 13px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fff7f7;
+  color: #b91c1c;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+.upload-memory-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 20px;
+  align-items: start;
+}
+
+.upload-memory-main {
+  min-width: 0;
+}
+
+/* =========================================================
+   FILE CARD
+========================================================= */
+
+.upload-memory-card {
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
+}
+
+.upload-memory-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.upload-memory-card-header h2 {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.upload-memory-card-header p {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+.upload-memory-card-header > span {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 8px;
+  font-weight: 650;
+}
+
+/* =========================================================
+   DROPZONE
+========================================================= */
+
+.upload-dropzone {
+  min-height: 355px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 30px;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 13px;
+  background: #fafcff;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.is-dragging {
+  border-color: #60a5fa;
+  background: #f4f8ff;
+}
+
+.upload-dropzone.is-dragging {
+  transform: scale(1.005);
+}
+
+.upload-dropzone-icon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 13px;
+  border-radius: 15px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.upload-dropzone h3 {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.upload-dropzone > p {
+  margin: 5px 0 18px;
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+.upload-supported-types {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.upload-supported-types span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 8px;
+}
+
+/* =========================================================
+   SELECTED FILE
+========================================================= */
+
+.upload-selected-file {
+  position: relative;
+  min-height: 355px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 25px;
+  border: 1px solid #dbeafe;
+  border-radius: 13px;
+  background: #f8fbff;
+}
+
+.upload-file-preview {
+  width: 110px;
+  height: 110px;
+  flex: 0 0 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  border-radius: 13px;
+  background: #ffffff;
+}
+
+.upload-file-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-file-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.upload-file-details {
+  min-width: 0;
+}
+
+.upload-file-details strong {
+  display: block;
+  overflow: hidden;
+  color: #334155;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-file-details > span {
+  display: block;
+  margin-top: 5px;
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+.upload-file-ready {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 11px;
+  color: #16a34a;
+  font-size: 8px;
+  font-weight: 650;
+}
+
+.upload-remove-file {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 29px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.upload-remove-file:hover {
+  border-color: #fecaca;
+  background: #fff7f7;
+  color: #dc2626;
+}
+
+.upload-remove-file:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+.upload-memory-security {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 13px;
+  border: 1px solid #dbeafe;
+  border-radius: 11px;
+  background: #f8fbff;
+}
+
+.upload-memory-security-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.upload-memory-security strong {
+  display: block;
+  color: #1e3a8a;
+  font-size: 9px;
+}
+
+.upload-memory-security p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   FORM CARD
+========================================================= */
+
+.upload-memory-form-card {
+  padding: 23px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
+}
+
+.upload-form-heading {
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.upload-form-heading h2 {
+  margin: 0;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.upload-form-heading p {
+  margin: 5px 0 0;
+  color: #94a3b8;
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   FORM FIELDS
+========================================================= */
+
+.upload-form-field {
+  display: block;
+  margin-bottom: 15px;
+}
+
+.upload-form-field > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #475569;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.upload-form-field input,
+.upload-form-field textarea,
+.upload-form-field select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #334155;
+  font-family: inherit;
+  font-size: 10px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.upload-form-field input,
+.upload-form-field select {
+  height: 39px;
+  padding: 0 10px;
+}
+
+.upload-form-field textarea {
+  min-height: 95px;
+  padding: 10px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.upload-form-field input::placeholder,
+.upload-form-field textarea::placeholder {
+  color: #cbd5e1;
+}
+
+.upload-form-field input:focus,
+.upload-form-field textarea:focus,
+.upload-form-field select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px #eff6ff;
+}
+
+.upload-form-field input:disabled,
+.upload-form-field textarea:disabled,
+.upload-form-field select:disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+.upload-form-field small {
+  display: block;
+  margin-top: 5px;
+  color: #94a3b8;
+  font-size: 8px;
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.upload-date-input {
+  position: relative;
+}
+
+.upload-date-input svg {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.upload-date-input input {
+  padding-left: 32px !important;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.upload-form-actions {
+  display: grid;
+  grid-template-columns: 0.75fr 1.25fr;
+  gap: 8px;
+  padding-top: 5px;
+}
+
+.upload-cancel-button,
+.upload-save-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.upload-cancel-button {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+}
+
+.upload-cancel-button:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.upload-save-button {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.15);
+}
+
+.upload-save-button:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+}
+
+.upload-cancel-button:disabled,
+.upload-save-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .upload-memory-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-memory-form-card {
+    order: 2;
+  }
+}
+
+@media (max-width: 650px) {
+  .upload-memory-page {
+    padding: 22px 16px 35px;
+  }
+
+  .upload-memory-header {
+    gap: 14px;
+  }
+
+  .upload-memory-title h1 {
+    font-size: 21px;
+  }
+
+  .upload-memory-card {
+    padding: 16px;
+  }
+
+  .upload-memory-form-card {
+    padding: 18px;
+  }
+
+  .upload-dropzone,
+  .upload-selected-file {
+    min-height: 280px;
+  }
+
+  .upload-selected-file {
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .upload-file-details {
+    width: 100%;
+  }
+
+  .upload-form-actions {
+    grid-template-columns: 1fr;
+  }
+}

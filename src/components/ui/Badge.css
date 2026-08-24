@@ -1,0 +1,81 @@
+.ech-badge {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  border-radius: 999px;
+
+  font-family: var(--font-family);
+
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   SIZES
+========================================================= */
+
+.ech-badge-small {
+  min-height: 20px;
+
+  padding: 0 7px;
+
+  font-size: 10px;
+}
+
+.ech-badge-medium {
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   COLORS
+========================================================= */
+
+.ech-badge-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.ech-badge-success {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.ech-badge-warning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.ech-badge-danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.ech-badge-neutral {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* =========================================================
+   DOT
+========================================================= */
+
+.ech-badge-dot {
+  width: 5px;
+  height: 5px;
+
+  flex: 0 0 5px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}

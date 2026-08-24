@@ -1,0 +1,148 @@
+.ech-checkbox-wrapper {
+  width: 100%;
+}
+
+.ech-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  cursor: pointer;
+}
+
+.ech-checkbox-control {
+  position: relative;
+
+  width: 18px;
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  margin-top: 1px;
+}
+
+.ech-checkbox-input {
+  position: absolute;
+
+  opacity: 0;
+
+  width: 1px;
+  height: 1px;
+}
+
+.ech-checkbox-box {
+  width: 18px;
+  height: 18px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+
+  background: #ffffff;
+  color: #ffffff;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ech-checkbox-box svg {
+  opacity: 0;
+
+  transform: scale(0.7);
+
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.ech-checkbox-input:checked + .ech-checkbox-box {
+  border-color: #2563eb;
+
+  background: #2563eb;
+}
+
+.ech-checkbox-input:checked + .ech-checkbox-box svg {
+  opacity: 1;
+
+  transform: scale(1);
+}
+
+.ech-checkbox-input:focus-visible + .ech-checkbox-box {
+  border-color: #93c5fd;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ech-checkbox-input:disabled + .ech-checkbox-box {
+  background: #f8fafc;
+
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+.ech-checkbox-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.ech-checkbox-title {
+  color: #475569;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  line-height: 1.4;
+}
+
+.ech-checkbox-description {
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.ech-checkbox-error {
+  margin: 5px 0 0 27px;
+
+  color: #dc2626;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   DISABLED
+========================================================= */
+
+.ech-checkbox-label:has(.ech-checkbox-input:disabled) {
+  cursor: not-allowed;
+}
+
+.ech-checkbox-label:has(.ech-checkbox-input:disabled) .ech-checkbox-title {
+  color: #94a3b8;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+  .ech-checkbox-title {
+    font-size: 12px;
+  }
+
+  .ech-checkbox-description {
+    font-size: 10px;
+  }
+}

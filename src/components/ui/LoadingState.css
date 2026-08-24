@@ -1,0 +1,86 @@
+.ech-loading {
+  width: 100%;
+
+  min-height: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  gap: 9px;
+
+  box-sizing: border-box;
+
+  color: #64748b;
+}
+
+/* =========================================================
+   SIZES
+========================================================= */
+
+.ech-loading-small {
+  min-height: 120px;
+}
+
+.ech-loading-medium {
+  min-height: 180px;
+}
+
+.ech-loading-large {
+  min-height: 280px;
+}
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.ech-loading-spinner {
+  color: #2563eb;
+
+  animation: ech-loading-spin 0.8s linear infinite;
+}
+
+.ech-loading-small .ech-loading-spinner {
+  width: 17px;
+  height: 17px;
+}
+
+.ech-loading-medium .ech-loading-spinner {
+  width: 23px;
+  height: 23px;
+}
+
+.ech-loading-large .ech-loading-spinner {
+  width: 29px;
+  height: 29px;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.ech-loading-message {
+  color: #94a3b8;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   FULL PAGE
+========================================================= */
+
+.ech-loading-full-page {
+  min-height: calc(100vh - 72px);
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes ech-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
