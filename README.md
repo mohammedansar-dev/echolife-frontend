@@ -1,75 +1,118 @@
-# React + TypeScript + Vite
+# EchoLife Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+EchoLife is a digital memory and legacy platform that allows users to preserve meaningful memories, organize personal experiences, and build a lasting digital legacy.
 
-Currently, two official plugins are available:
+This repository contains the **EchoLife frontend application**, built with React and TypeScript.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The frontend communicates with the EchoLife backend through REST APIs.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Table of Contents
 
-## Expanding the ESLint configuration
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Environment Configuration](#environment-configuration)
+- [Running the Application](#running-the-application)
+- [Project Structure](#project-structure)
+- [Backend Integration](#backend-integration)
+- [Authentication](#authentication)
+- [Memory Integration](#memory-integration)
+- [Memory Media Integration](#memory-media-integration)
+- [Time Capsule Integration](#time-capsule-integration)
+- [Other Backend APIs](#other-backend-apis)
+- [API Configuration](#api-configuration)
+- [Development Workflow](#development-workflow)
+- [Git Workflow](#git-workflow)
+- [Build Verification](#build-verification)
+- [Troubleshooting](#troubleshooting)
+- [Current Integration Status](#current-integration-status)
+- [Important Development Notes](#important-development-notes)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Project Overview
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+EchoLife provides a frontend experience for preserving and managing personal memories and legacy-related information.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The frontend currently contains UI and application structure for:
 
-```
+- Authentication
+- Registration
+- Login
+- Onboarding
+- Dashboard
+- Memory Vault
+- Memory creation
+- Memory details
+- Memory media
+- Time Capsules
+- Family
+- Legacy Contacts
+- Persona / AI
+- Profile
+- Settings
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The backend is maintained separately and exposes REST APIs used by the frontend.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Technology Stack
 
-```
+## Frontend
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Axios
+- CSS
+- HTML
+
+## API Communication
+
+- REST APIs
+- Axios
+- JSON
+- `multipart/form-data` for file uploads
+
+## Development Tools
+
+- Node.js
+- npm
+- Git
+- GitHub
+- Swagger / OpenAPI for backend API verification
+
+---
+
+# Prerequisites
+
+Before running the project, install:
+
+- Node.js
+- npm
+- Git
+
+Verify the installations:
+
+```bash
+node --version
+npm --version
+git --version
+
+
+Clone the Repository
+git clone https://github.com/mohammedansar-dev/echolife-frontend.git
+
+Navigate to the project:
+
+cd echolife-frontend
+Install Dependencies
+
+Run:
+
+npm install
+npm run dev
