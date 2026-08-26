@@ -12,6 +12,7 @@ import AppLayout from "./components/layout/AppLayout";
 
 import LoginPage from "./features/auth/pages/LoginPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
+import MFASetupPage from "./features/auth/pages/MFASetupPage";
 import MFAPage from "./features/auth/pages/MFAPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
@@ -173,6 +174,8 @@ function App() {
                       ================================================= */}
 
                       <Route path="dashboard" element={<DashboardPage />} />
+
+                      <Route path="mfa/setup" element={<MFASetupPage />} />
 
                       {/* =================================================
                          MEMORY VAULT

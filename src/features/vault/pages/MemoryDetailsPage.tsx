@@ -1,464 +1,345 @@
 import {
   ArrowLeft,
   CalendarDays,
-  Check,
-  Download,
+  Clock3,
+  FileAudio,
   FileText,
+  FileVideo,
   Image as ImageIcon,
-  Lock,
+  Loader2,
   Pencil,
-  ShieldCheck,
+  Sparkles,
   Trash2,
-  Users,
-  Video,
-  Volume2,
   X,
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
-
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useMemory } from "../MemoryContext";
+import type { Memory, MemoryType } from "../memory.types";
 
-import type { MemoryCategory } from "../memory.types";
-
-import { useTimeCapsule, type TimeCapsule } from "../TimeCapsuleContext";
+import EditMemoryModal from "../components/EditMemoryModal";
 
 import "./MemoryDetailsPage.css";
 
 /* =========================================================
-   CATEGORIES
+   HELPERS
 ========================================================= */
 
-const CATEGORIES: MemoryCategory[] = [
-  "Family",
-  "Friends",
-  "Celebrations",
-  "Childhood",
-  "Milestones",
-  "Travel",
-  "Personal",
-  "Other",
-];
+function formatDate(value?: string): string {
+  if (!value) {
+    return "Date unavailable";
+  }
 
-/* =========================================================
-   DATE FORMATTER
-========================================================= */
-
-function formatDate(value: string) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-IN", {
+  return date.toLocaleDateString("en-IN", {
+    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(date);
+  });
+}
+
+function getMemoryTypeLabel(type: MemoryType): string {
+  switch (type) {
+    case "photo":
+      return "Photo";
+
+    case "video":
+      return "Video";
+
+    case "audio":
+      return "Audio";
+
+    case "document":
+      return "Document";
+
+    default:
+      return "Memory";
+  }
+}
+
+function getMemoryIcon(type: MemoryType) {
+  switch (type) {
+    case "photo":
+      return ImageIcon;
+
+    case "video":
+      return FileVideo;
+
+    case "audio":
+      return FileAudio;
+
+    case "document":
+    default:
+      return FileText;
+  }
 }
 
 /* =========================================================
    PAGE
 ========================================================= */
 
-function MemoryDetailsPage() {
+export default function MemoryDetailsPage() {
   const navigate = useNavigate();
 
   const { memoryId } = useParams<{
     memoryId: string;
   }>();
 
+  const { getMemoryById, deleteMemory, updateMemory } = useMemory();
+
   /* =======================================================
-     MEMORY CONTEXT
+     MEMORY STATEk
   ======================================================= */
 
-  const { memories, updateMemory, deleteMemory } = useMemory();
+  const [memory, setMemory] = useState<Memory | undefined>(undefined);
+
+  const [loadingMemory, setLoadingMemory] = useState(true);
 
   /* =======================================================
-     TIME CAPSULE CONTEXT
+     ACTION STATE
   ======================================================= */
 
-  const { capsules, createCapsule } = useTimeCapsule();
+  const [deleting, setDeleting] = useState(false);
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [showEditModal, setShowEditModal] = useState(false);
+
 
   /* =======================================================
-     MEMORY
+     TOAST
   ======================================================= */
 
-  const decodedId = memoryId ? decodeURIComponent(memoryId) : "";
-
-  const memory = memories.find((item) => item.id === decodedId);
-
-  /* =======================================================
-     TIME CAPSULES FOR THIS MEMORY
-  ======================================================= */
-
-  const memoryCapsules = memory
-    ? capsules.filter((capsule) => capsule.memoryId === memory.id)
-    : [];
+  const [toast, setToast] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   /* =======================================================
-     EDIT STATE
-  ======================================================= */
-
-  const [editing, setEditing] = useState(false);
-
-  const [saving, setSaving] = useState(false);
-
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  const [message, setMessage] = useState("");
-
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success",
-  );
-
-  const [title, setTitle] = useState("");
-
-  const [description, setDescription] = useState("");
-
-  const [date, setDate] = useState("");
-
-  const [category, setCategory] = useState<MemoryCategory>("Family");
-
-  const [people, setPeople] = useState("");
-
-  /* =======================================================
-     TIME CAPSULE STATE
-  ======================================================= */
-
-  const [capsuleOpen, setCapsuleOpen] = useState(false);
-
-  const [capsuleTitle, setCapsuleTitle] = useState("");
-
-  const [capsuleMessage, setCapsuleMessage] = useState("");
-
-  const [capsuleDate, setCapsuleDate] = useState("");
-
-  const [capsuleSaving, setCapsuleSaving] = useState(false);
-
-  const [capsuleError, setCapsuleError] = useState("");
-
-  /* =======================================================
-     LOAD EDIT FORM
+     LOAD MEMORY
   ======================================================= */
 
   useEffect(() => {
-    if (!memory) {
+    if (!memoryId) {
+      setMemory(undefined);
+      setLoadingMemory(false);
       return;
     }
 
-    setTitle(memory.title);
-    setDescription(memory.description);
-    setDate(memory.date);
-    setCategory(memory.category);
-    setPeople(memory.people.join(", "));
-  }, [memory]);
+    let cancelled = false;
+
+    const loadMemory = async () => {
+      setLoadingMemory(true);
+      setToast(null);
+
+      try {
+        const result = await getMemoryById(memoryId);
+
+        if (!cancelled) {
+          setMemory(result ?? undefined);
+        }
+      } catch (error) {
+        console.error("Unable to load memory:", error);
+
+        if (!cancelled) {
+          setMemory(undefined);
+
+          setToast({
+            type: "error",
+            message: "Unable to load this memory.",
+          });
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingMemory(false);
+        }
+      }
+    };
+
+    void loadMemory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memoryId, getMemoryById]);
 
   /* =======================================================
-     AUTO CLEAR MESSAGE
+     NO ID
   ======================================================= */
 
-  useEffect(() => {
-    if (!message) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setMessage(""), 3500);
-
-    return () => window.clearTimeout(timer);
-  }, [message]);
-
-  /* =======================================================
-     MEMORY NOT FOUND
-  ======================================================= */
-
-  if (!memory) {
+  if (!memoryId) {
     return (
       <main className="memory-details-page">
-        <section className="memory-not-found">
-          <div className="memory-not-found-icon">
-            <ImageIcon size={28} />
-          </div>
-
+        <div className="memory-details-not-found">
           <h1>Memory not found</h1>
 
-          <p>
-            The requested memory could not be found in your EchoLife memory
-            space.
-          </p>
-
-          <div>
-            <strong>Memory ID:</strong> {decodedId || "Unknown"}
-          </div>
+          <p>No memory identifier was provided.</p>
 
           <button type="button" onClick={() => navigate("/app/vault")}>
-            <ArrowLeft size={16} />
+            <ArrowLeft size={17} />
             Back to Memory Vault
           </button>
-        </section>
+        </div>
       </main>
     );
   }
 
   /* =======================================================
-     SAVE MEMORY
+     LOADING
   ======================================================= */
 
-  const handleSave = async () => {
-    if (!title.trim()) {
-      setMessageType("error");
-      setMessage("Please enter a memory title.");
-      return;
-    }
+  if (loadingMemory) {
+    return (
+      <main className="memory-details-page">
+        <div className="memory-details-not-found">
+          <Loader2 size={34} className="memory-details-spin" />
 
-    setSaving(true);
+          <h1>Loading memory...</h1>
+
+          <p>Retrieving your memory from EchoLife.</p>
+        </div>
+      </main>
+    );
+  }
+
+  /* =======================================================
+     NOT FOUND
+  ======================================================= */
+
+  if (!memory) {
+    return (
+      <main className="memory-details-page">
+        <div className="memory-details-not-found">
+          <div className="memory-details-not-found-icon">
+            <FileText size={28} />
+          </div>
+
+          <h1>Memory not found</h1>
+
+          <p>This memory is not available or may have been deleted.</p>
+
+          <button type="button" onClick={() => navigate("/app/vault")}>
+            <ArrowLeft size={17} />
+            Back to Memory Vault
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  /* =======================================================
+     MEMORY DATA
+  ======================================================= */
+
+  const Icon = getMemoryIcon(memory.type);
+
+  const isImage = memory.type === "photo" || Boolean(memory.thumbnail);
+
+  const isVideo = memory.type === "video";
+
+  const isAudio = memory.type === "audio";
+
+  const canPreviewFile = Boolean(memory.fileData);
+
+  /* =======================================================
+     EDIT
+  ======================================================= */
+
+  const handleEditSave = async (updatedMemory: Memory) => {
+    setToast(null);
 
     try {
-      await updateMemory({
-        ...memory,
-
-        title: title.trim(),
-
-        description: description.trim(),
-
-        date,
-
-        category,
-
-        people: people
-          .split(",")
-          .map((person) => person.trim())
-          .filter(Boolean),
+      const result = await updateMemory(updatedMemory.id, {
+        title: updatedMemory.title,
+        description: updatedMemory.description,
+        date: updatedMemory.date,
+        category: updatedMemory.category,
+        people: updatedMemory.people,
+        type: updatedMemory.type,
+        fileName: updatedMemory.fileName,
+        size: updatedMemory.size,
+        thumbnail: updatedMemory.thumbnail,
+        fileData: updatedMemory.fileData,
+        isTimeCapsule: updatedMemory.isTimeCapsule,
+        unlockDate: updatedMemory.unlockDate,
+        aiReflectionSummary: updatedMemory.aiReflectionSummary,
+        emotionalTone: updatedMemory.emotionalTone,
       });
 
-      setEditing(false);
+      if (result) {
+        setMemory(result);
 
-      setMessageType("success");
+        setShowEditModal(false);
 
-      setMessage("Memory updated successfully.");
+        setToast({
+          type: "success",
+          message: "Memory updated successfully.",
+        });
+      } else {
+        setToast({
+          type: "error",
+          message: "Unable to update this memory.",
+        });
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Unable to update memory:", error);
 
-      setMessageType("error");
-
-      setMessage("Unable to update memory.");
-    } finally {
-      setSaving(false);
+      setToast({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while updating the memory.",
+      });
     }
   };
 
   /* =======================================================
-     DELETE MEMORY
+     DELETE
   ======================================================= */
 
   const handleDelete = async () => {
-    setSaving(true);
+    setDeleting(true);
+    setToast(null);
 
     try {
       await deleteMemory(memory.id);
 
-      navigate("/app/vault", {
-        replace: true,
-      });
-    } catch (error) {
-      console.error(error);
+      setShowDeleteConfirm(false);
 
-      setMessageType("error");
-
-      setMessage("Unable to delete memory.");
-
-      setSaving(false);
-    }
-  };
-
-  /* =======================================================
-     DOWNLOAD MEMORY
-  ======================================================= */
-
-  const handleDownload = () => {
-    if (!memory.fileData) {
-      setMessageType("error");
-
-      setMessage("The file data is not available for this memory.");
-
-      return;
-    }
-
-    const link = document.createElement("a");
-
-    link.href = memory.fileData;
-
-    link.download = memory.fileName || memory.title;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-  };
-
-  /* =======================================================
-     OPEN TIME CAPSULE MODAL
-  ======================================================= */
-
-  const openCapsuleModal = () => {
-    setCapsuleError("");
-
-    setCapsuleTitle(`${memory.title} — Future Me`);
-
-    setCapsuleMessage("");
-
-    setCapsuleDate("");
-
-    setCapsuleOpen(true);
-  };
-
-  /* =======================================================
-     CREATE TIME CAPSULE
-  ======================================================= */
-
-  const handleCreateCapsule = async () => {
-    setCapsuleError("");
-
-    if (!capsuleTitle.trim()) {
-      setCapsuleError("Please enter a capsule title.");
-
-      return;
-    }
-
-    if (!capsuleDate) {
-      setCapsuleError("Please choose an unlock date.");
-
-      return;
-    }
-
-    const unlockDate = new Date(capsuleDate);
-
-    if (Number.isNaN(unlockDate.getTime())) {
-      setCapsuleError("Please select a valid date.");
-
-      return;
-    }
-
-    if (unlockDate.getTime() <= Date.now()) {
-      setCapsuleError("The unlock date must be in the future.");
-
-      return;
-    }
-
-    setCapsuleSaving(true);
-
-    try {
-      await createCapsule({
-        id: `capsule-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-
-        memoryId: memory.id,
-
-        title: capsuleTitle.trim(),
-
-        message: capsuleMessage.trim(),
-
-        unlockDate: unlockDate.toISOString(),
-
-
-        isOpened: false,
+      setToast({
+        type: "success",
+        message: "Memory deleted successfully.",
       });
 
-      setCapsuleTitle("");
-
-      setCapsuleMessage("");
-
-      setCapsuleDate("");
-
-      setCapsuleOpen(false);
-
-      setMessageType("success");
-
-      setMessage("Time capsule created successfully.");
+      /*
+       * Give the toast a moment to appear
+       * before navigating away.
+       */
+      window.setTimeout(() => {
+        navigate("/app/vault");
+      }, 700);
     } catch (error) {
-      console.error("Unable to create time capsule:", error);
+      console.error("Unable to delete memory:", error);
 
-      setCapsuleError("Unable to create the time capsule. Please try again.");
-    } finally {
-      setCapsuleSaving(false);
+      setDeleting(false);
+
+      setToast({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unable to delete this memory.",
+      });
     }
-  };
-
-  /* =======================================================
-     CAPSULE STATUS
-  ======================================================= */
-
-  const isCapsuleUnlocked = (capsule: TimeCapsule) => {
-    return new Date(capsule.unlockDate).getTime() <= Date.now();
-  };
-
-  /* =======================================================
-     CAPSULE DATE
-  ======================================================= */
-
-  const formatCapsuleDate = (value: string) => {
-    return formatDate(value);
-  };
-
-  /* =======================================================
-     MEDIA
-  ======================================================= */
-
-  const renderMedia = () => {
-    if (memory.type === "photo" && memory.thumbnail) {
-      return <img src={memory.thumbnail} alt={memory.title} />;
-    }
-
-    if (memory.type === "video" && memory.fileData) {
-      return <video src={memory.fileData} controls />;
-    }
-
-    if (memory.type === "audio" && memory.fileData) {
-      return (
-        <div className="memory-audio-preview">
-          <Volume2 size={40} />
-
-          <audio src={memory.fileData} controls />
-        </div>
-      );
-    }
-
-    if (memory.type === "photo") {
-      return (
-        <div className="memory-details-file">
-          <ImageIcon size={42} />
-
-          <strong>{memory.fileName}</strong>
-
-          <span>Photo</span>
-        </div>
-      );
-    }
-
-    if (memory.type === "video") {
-      return (
-        <div className="memory-details-file">
-          <Video size={42} />
-
-          <strong>{memory.fileName}</strong>
-
-          <span>Video</span>
-        </div>
-      );
-    }
-
-    return (
-      <div className="memory-details-file">
-        <FileText size={42} />
-
-        <strong>{memory.fileName}</strong>
-
-        <span>{memory.type}</span>
-      </div>
-    );
   };
 
   /* =======================================================
@@ -467,541 +348,342 @@ function MemoryDetailsPage() {
 
   return (
     <main className="memory-details-page">
-      {/* ===================================================
-          TOAST
-      =================================================== */}
+      <div className="memory-details-container">
+        {/* =================================================
+            TOP BAR
+        ================================================= */}
 
-      {message && (
-        <div
-          className={`memory-details-toast ${
-            messageType === "error" ? "error" : ""
-          }`}
-        >
-          {messageType === "success" ? <Check size={16} /> : <X size={16} />}
-
-          <span>{message}</span>
-
+        <header className="memory-details-topbar">
           <button
             type="button"
-            onClick={() => setMessage("")}
-            aria-label="Close notification"
+            className="memory-details-back-button"
+            onClick={() => navigate("/app/vault")}
           >
-            <X size={13} />
+            <ArrowLeft size={18} />
+            Memory Vault
           </button>
-        </div>
-      )}
 
-      {/* ===================================================
-          HEADER
-      =================================================== */}
-
-      <header className="memory-details-header">
-        <button
-          type="button"
-          className="memory-details-back"
-          onClick={() => navigate("/app/vault")}
-        >
-          <ArrowLeft size={17} />
-          Memory Vault
-        </button>
-
-        {!editing ? (
           <div className="memory-details-actions">
-            {/* TIME CAPSULE */}
-
             <button
               type="button"
-              className="time-capsule-action"
-              onClick={openCapsuleModal}
+              className="memory-details-edit-button"
+              onClick={() => setShowEditModal(true)}
             >
-              <Lock size={15} />
-              Create Time Capsule
-            </button>
-
-            {/* DOWNLOAD */}
-
-            <button type="button" onClick={handleDownload}>
-              <Download size={15} />
-              Download
-            </button>
-
-            {/* EDIT */}
-
-            <button type="button" onClick={() => setEditing(true)}>
-              <Pencil size={15} />
+              <Pencil size={16} />
               Edit
             </button>
 
-            {/* DELETE */}
-
             <button
               type="button"
-              className="danger"
-              onClick={() => setDeleteOpen(true)}
+              className="memory-details-delete-button"
+              onClick={() => setShowDeleteConfirm(true)}
             >
-              <Trash2 size={15} />
+              <Trash2 size={16} />
               Delete
             </button>
           </div>
-        ) : (
-          <div className="memory-details-actions">
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => setEditing(false)}
-            >
-              Cancel
-            </button>
+        </header>
 
-            <button
-              type="button"
-              className="save"
-              disabled={saving}
-              onClick={handleSave}
-            >
-              <Check size={15} />
+        {/* =================================================
+            MAIN
+        ================================================= */}
 
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        )}
-      </header>
+        <div className="memory-details-layout">
+          {/* =================================================
+              MEDIA
+          ================================================= */}
 
-      {/* ===================================================
-          TIME CAPSULE MODAL
-      =================================================== */}
+          <section className="memory-details-media-panel">
+            {memory.thumbnail && isImage ? (
+              <img
+                src={memory.thumbnail}
+                alt={memory.title}
+                className="memory-details-image"
+              />
+            ) : memory.fileData && isVideo ? (
+              <video
+                src={memory.fileData}
+                className="memory-details-video"
+                controls
+              />
+            ) : memory.fileData && isAudio ? (
+              <div className="memory-details-audio">
+                <FileAudio size={48} />
 
-      {capsuleOpen && (
-        <div
-          className="memory-capsule-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="time-capsule-title"
-        >
-          <section className="memory-capsule-modal">
-            <button
-              type="button"
-              className="memory-capsule-close"
-              onClick={() => setCapsuleOpen(false)}
-              disabled={capsuleSaving}
-              aria-label="Close time capsule"
-            >
-              <X size={18} />
-            </button>
-
-            <div className="memory-capsule-heading">
-              <div className="memory-capsule-icon">
-                <Lock size={20} />
+                <audio src={memory.fileData} controls />
               </div>
+            ) : (
+              <div className="memory-details-file-placeholder">
+                <Icon size={50} />
 
-              <div>
-                <h2 id="time-capsule-title">Create Time Capsule</h2>
+                <strong>{getMemoryTypeLabel(memory.type)}</strong>
 
-                <p>Keep this memory safely locked until your chosen date.</p>
+                <span>{memory.fileName || "Memory file"}</span>
+
+                {canPreviewFile && (
+                  <a href={memory.fileData} target="_blank" rel="noreferrer">
+                    Open file
+                  </a>
+                )}
               </div>
+            )}
+          </section>
+
+          {/* =================================================
+              DETAILS
+          ================================================= */}
+
+          <section className="memory-details-content">
+            <div className="memory-details-type">
+              <Icon size={15} />
+
+              {getMemoryTypeLabel(memory.type)}
+
+              {memory.isTimeCapsule && (
+                <span>
+                  <Clock3 size={13} />
+                  Time capsule
+                </span>
+              )}
             </div>
 
-            {/* SELECTED MEMORY */}
+            <h1>{memory.title || "Untitled memory"}</h1>
 
-            <div className="memory-capsule-selected">
-              <span>Selected memory</span>
+            <div className="memory-details-date">
+              <CalendarDays size={16} />
 
-              <strong>{memory.title}</strong>
+              <span>{formatDate(memory.date || memory.memoryDate)}</span>
             </div>
 
-            {/* ERROR */}
+            {/* DESCRIPTION */}
 
-            {capsuleError && (
-              <div className="memory-capsule-error">
-                <X size={15} />
+            {memory.description && (
+              <div className="memory-details-description">
+                <h2>About this memory</h2>
 
-                <span>{capsuleError}</span>
+                <p>{memory.description}</p>
               </div>
             )}
 
-            {/* TITLE */}
+            {/* INFORMATION */}
 
-            <label>
-              Capsule title
-              <input
-                type="text"
-                value={capsuleTitle}
-                onChange={(event) => setCapsuleTitle(event.target.value)}
-                placeholder="A message for my future self"
-                disabled={capsuleSaving}
-              />
-            </label>
+            <div className="memory-details-information">
+              <div className="memory-details-information-item">
+                <span>Category</span>
 
-            {/* MESSAGE */}
-
-            <label>
-              Message
-              <textarea
-                rows={5}
-                value={capsuleMessage}
-                onChange={(event) => setCapsuleMessage(event.target.value)}
-                placeholder="Write something you want your future self to remember..."
-                disabled={capsuleSaving}
-              />
-            </label>
-
-            {/* DATE */}
-
-            <label>
-              Unlock date
-              <input
-                type="date"
-                value={capsuleDate}
-                min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)}
-                onChange={(event) => setCapsuleDate(event.target.value)}
-                disabled={capsuleSaving}
-              />
-            </label>
-
-            {/* PREVIEW */}
-
-            <div className="memory-capsule-preview">
-              <Lock size={18} />
-
-              <div>
-                <strong>This memory will be locked</strong>
-
-                <span>It will become available on the selected date.</span>
+                <strong>{memory.category || "Memories"}</strong>
               </div>
+
+              <div className="memory-details-information-item">
+                <span>File</span>
+
+                <strong title={memory.fileName}>
+                  {memory.fileName || "Memory"}
+                </strong>
+              </div>
+
+              {memory.size && (
+                <div className="memory-details-information-item">
+                  <span>Size</span>
+
+                  <strong>{memory.size}</strong>
+                </div>
+              )}
+
+              {memory.people.length > 0 && (
+                <div className="memory-details-information-item memory-details-people">
+                  <span>People</span>
+
+                  <div>
+                    {memory.people.map((person) => (
+                      <span key={person}>{person}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* ACTIONS */}
+            {/* AI REFLECTION */}
 
-            <div className="memory-capsule-actions">
-              <button
-                type="button"
-                onClick={() => setCapsuleOpen(false)}
-                disabled={capsuleSaving}
-              >
-                Cancel
-              </button>
+            {(memory.aiReflectionSummary ||
+              memory.aiReflection ||
+              memory.emotionalTone) && (
+              <section className="memory-details-ai-section">
+                <div className="memory-details-ai-heading">
+                  <div className="memory-details-ai-icon">
+                    <Sparkles size={17} />
+                  </div>
 
-              <button
-                type="button"
-                className="primary"
-                onClick={handleCreateCapsule}
-                disabled={capsuleSaving}
-              >
-                <Lock size={15} />
+                  <div>
+                    <h2>AI Reflection</h2>
 
-                {capsuleSaving ? "Locking..." : "Lock Time Capsule"}
-              </button>
+                    <p>A reflection connected to this memory.</p>
+                  </div>
+                </div>
+
+                {memory.aiReflectionSummary && (
+                  <p className="memory-details-ai-summary">
+                    {memory.aiReflectionSummary}
+                  </p>
+                )}
+
+                {memory.aiReflection && (
+                  <p className="memory-details-ai-reflection">
+                    {memory.aiReflection}
+                  </p>
+                )}
+
+                {memory.emotionalTone && (
+                  <div className="memory-details-emotion">
+                    <span>Emotional tone</span>
+
+                    <strong>{memory.emotionalTone}</strong>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* TIME CAPSULE */}
+
+            {memory.isTimeCapsule && (
+              <section className="memory-details-capsule">
+                <div className="memory-details-capsule-icon">
+                  <Clock3 size={18} />
+                </div>
+
+                <div>
+                  <h2>Time Capsule</h2>
+
+                  <p>This memory is intended to be opened in the future.</p>
+
+                  {memory.unlockDate && (
+                    <strong>Unlocks on {formatDate(memory.unlockDate)}</strong>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* METADATA */}
+
+            <div className="memory-details-metadata">
+              {memory.createdAt && (
+                <span>Created {formatDate(memory.createdAt)}</span>
+              )}
+
+              {memory.updatedAt && (
+                <span>Updated {formatDate(memory.updatedAt)}</span>
+              )}
+
+              {memory.backendId && <span>Memory ID #{memory.backendId}</span>}
             </div>
           </section>
         </div>
-      )}
+      </div>
 
-      {/* ===================================================
-          DELETE DIALOG
-      =================================================== */}
+      {/* =====================================================
+          DELETE CONFIRMATION
+      ===================================================== */}
 
-      {deleteOpen && (
-        <div className="memory-delete-overlay">
-          <div className="memory-delete-dialog">
-            <div className="memory-delete-icon">
+      {showDeleteConfirm && (
+        <div
+          className="memory-details-dialog-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setShowDeleteConfirm(false);
+            }
+          }}
+        >
+          <div
+            className="memory-details-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-memory-title"
+          >
+            <div className="memory-details-dialog-icon">
               <Trash2 size={21} />
             </div>
 
-            <h2>Delete this memory?</h2>
+            <h2 id="delete-memory-title">Delete this memory?</h2>
 
             <p>
-              You're about to delete <strong>"{memory.title}"</strong>. This
-              action cannot be undone.
+              This will remove the memory from your current EchoLife vault. This
+              action cannot be undone from the frontend.
             </p>
 
-            <div className="memory-delete-actions">
-              <button type="button" onClick={() => setDeleteOpen(false)}>
+            <div className="memory-details-dialog-actions">
+              <button
+                type="button"
+                className="memory-details-dialog-cancel"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+              >
                 Cancel
               </button>
 
               <button
                 type="button"
-                className="danger"
-                disabled={saving}
+                className="memory-details-dialog-delete"
                 onClick={handleDelete}
+                disabled={deleting}
               >
-                <Trash2 size={14} />
-
-                {saving ? "Deleting..." : "Delete Memory"}
+                {deleting ? (
+                  <>
+                    <Loader2 size={17} className="memory-details-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={17} />
+                    Delete
+                  </>
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ===================================================
-          CONTENT
-      =================================================== */}
+      {/* =====================================================
+          EDIT MEMORY
+      ===================================================== */}
 
-      <div className="memory-details-layout">
-        {/* =================================================
-            MEDIA
-        ================================================= */}
+      {showEditModal && (
+        <EditMemoryModal
+          memory={memory}
+          onClose={() => setShowEditModal(false)}
+          onSave={handleEditSave}
+        />
+      )}
 
-        <section className="memory-details-media-card">
-          <div className="memory-details-media">{renderMedia()}</div>
+      {/* =====================================================
+          TOAST
+      ===================================================== */}
 
-          <div className="memory-details-media-footer">
-            <span>{memory.fileName}</span>
+      {toast && (
+        <div
+          className={`memory-details-toast ${
+            toast.type === "success"
+              ? "memory-details-toast-success"
+              : "memory-details-toast-error"
+          }`}
+          role="status"
+        >
+          <div className="memory-details-toast-content">
+            <strong>{toast.type === "success" ? "Success" : "Error"}</strong>
 
-            <span>{memory.size}</span>
+            <span>{toast.message}</span>
           </div>
-        </section>
 
-        {/* =================================================
-            INFORMATION
-        ================================================= */}
-
-        <section className="memory-details-info">
-          {!editing ? (
-            <>
-              {/* HEADING */}
-
-              <div className="memory-details-heading">
-                <span>{memory.category}</span>
-
-                <h1>{memory.title}</h1>
-
-                <p>
-                  <CalendarDays size={14} />
-
-                  {formatDate(memory.date)}
-                </p>
-              </div>
-
-              {/* DESCRIPTION */}
-
-              <div className="memory-details-section">
-                <h2>Description</h2>
-
-                <p>{memory.description || "No description added."}</p>
-              </div>
-
-              {/* PEOPLE */}
-
-              <div className="memory-details-section">
-                <h2>
-                  <Users size={16} />
-                  People
-                </h2>
-
-                <div className="memory-people">
-                  {memory.people.length > 0 ? (
-                    memory.people.map((person) => (
-                      <span key={person}>{person}</span>
-                    ))
-                  ) : (
-                    <small>No people added.</small>
-                  )}
-                </div>
-              </div>
-
-              {/* MEMORY INFORMATION */}
-
-              <div className="memory-details-section">
-                <h2>Memory information</h2>
-
-                <div className="memory-information-grid">
-                  <div>
-                    <span>Type</span>
-
-                    <strong>{memory.type}</strong>
-                  </div>
-
-                  <div>
-                    <span>Category</span>
-
-                    <strong>{memory.category}</strong>
-                  </div>
-
-                  <div>
-                    <span>File size</span>
-
-                    <strong>{memory.size}</strong>
-                  </div>
-
-                  <div>
-                    <span>Added</span>
-                    <strong>
-                      {formatDate(memory.createdAt || memory.date)}
-                    </strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* PRIVATE */}
-
-              <div className="memory-private-box">
-                <ShieldCheck size={19} />
-
-                <div>
-                  <strong>Private memory</strong>
-
-                  <p>This memory belongs to your private EchoLife space.</p>
-                </div>
-              </div>
-
-              {/* =================================================
-                  EXISTING TIME CAPSULES
-              ================================================= */}
-
-              {memoryCapsules.length > 0 && (
-                <section className="memory-capsules-section">
-                  <div className="memory-capsules-section-heading">
-                    <div>
-                      <h2>Time Capsules</h2>
-
-                      <p>Future memories connected to this memory.</p>
-                    </div>
-
-                    <span>{memoryCapsules.length}</span>
-                  </div>
-
-                  <div className="memory-capsules-list">
-                    {memoryCapsules.map((capsule) => {
-                      const unlocked = isCapsuleUnlocked(capsule);
-
-                      return (
-                        <div
-                          key={capsule.id}
-                          className={`memory-capsule-status-card ${
-                            unlocked ? "unlocked" : "locked"
-                          }`}
-                        >
-                          <div className="memory-capsule-status-icon">
-                            {unlocked ? (
-                              <Check size={17} />
-                            ) : (
-                              <Lock size={17} />
-                            )}
-                          </div>
-
-                          <div className="memory-capsule-status-content">
-                            <div className="memory-capsule-status-top">
-                              <strong>{capsule.title}</strong>
-
-                              <span>{unlocked ? "Unlocked" : "Locked"}</span>
-                            </div>
-
-                            <p>
-                              {unlocked
-                                ? "This capsule is ready to revisit."
-                                : `Opens ${formatCapsuleDate(
-                                    capsule.unlockDate,
-                                  )}`}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="memory-view-capsules-button"
-                    onClick={() => navigate("/app/time-capsule")}
-                  >
-                    View all time capsules
-                  </button>
-                </section>
-              )}
-
-              {/* =================================================
-                  CREATE CAPSULE CARD
-              ================================================= */}
-
-              <button
-                type="button"
-                className="memory-create-capsule-card"
-                onClick={openCapsuleModal}
-              >
-                <div className="memory-create-capsule-icon">
-                  <Lock size={19} />
-                </div>
-
-                <div>
-                  <strong>Preserve this for the future</strong>
-
-                  <span>Create a time capsule from this memory.</span>
-                </div>
-
-                <span className="memory-create-capsule-arrow">→</span>
-              </button>
-            </>
-          ) : (
-            /* =================================================
-               EDIT FORM
-            ================================================= */
-
-            <div className="memory-edit-form">
-              <div>
-                <span>EDIT MEMORY</span>
-
-                <h1>Update memory</h1>
-              </div>
-
-              <label>
-                Title
-                <input
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                />
-              </label>
-
-              <label>
-                Description
-                <textarea
-                  rows={5}
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
-              </label>
-
-              <label>
-                Memory date
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(event) => setDate(event.target.value)}
-                />
-              </label>
-
-              <label>
-                Category
-                <select
-                  value={category}
-                  onChange={(event) =>
-                    setCategory(event.target.value as MemoryCategory)
-                  }
-                >
-                  {CATEGORIES.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                People
-                <input
-                  value={people}
-                  onChange={(event) => setPeople(event.target.value)}
-                  placeholder="Family, Friends"
-                />
-                <small>Separate people with commas.</small>
-              </label>
-            </div>
-          )}
-        </section>
-      </div>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            aria-label="Close notification"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </main>
   );
 }
-
-export default MemoryDetailsPage;

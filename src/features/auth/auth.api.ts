@@ -4,34 +4,33 @@ import type {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  MfaEnrollResponse,
 } from "./auth.types";
 
 /* =========================================================
    REGISTER
    Backend:
-   POST /api/auth/register
+   POST /api/v1/auth/register
    ========================================================= */
 
-export async function register(
-  payload: RegisterRequest,
-): Promise<LoginResponse> {
-  const response = await api.post<LoginResponse>("/api/auth/register", {
+export async function register(payload: RegisterRequest): Promise<void> {
+  await api.post("/api/v1/auth/register", {
     name: payload.displayName.trim(),
     email: payload.email.trim().toLowerCase(),
     password: payload.password,
+    dateOfBirth: payload.dateOfBirth,
+    preferredLanguage: payload.preferredLanguage,
   });
-
-  return response.data;
 }
 
 /* =========================================================
    LOGIN
    Backend:
-   POST /api/auth/login
+   POST /api/v1/auth/login
    ========================================================= */
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
-  const response = await api.post<LoginResponse>("/api/auth/login", {
+  const response = await api.post<LoginResponse>("/api/v1/auth/login", {
     email: payload.email.trim().toLowerCase(),
     password: payload.password,
   });
@@ -41,53 +40,87 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
 
 /* =========================================================
    CURRENT USER
-   =========================================================
-   Current backend does not expose /api/auth/me.
+   Backend:
+   GET /api/v1/auth/me
    ========================================================= */
 
 export async function getCurrentUser() {
-  return null;
+  const response = await api.get("/api/v1/auth/me");
+
+  return response.data;
 }
 
 /* =========================================================
    LOGOUT
-   =========================================================
-   Current backend does not expose a logout endpoint.
+   Backend:
+   POST /api/v1/auth/logout
    ========================================================= */
 
-export async function logout() {
-  return;
+export async function logout(): Promise<void> {
+  await api.post("/api/v1/auth/logout");
+}
+
+/* =========================================================
+   MFA VERIFY
+   Backend:
+   POST /api/v1/auth/mfa/verify
+   ========================================================= */
+
+export async function verifyMfa(
+  mfaToken: string,
+  code: string,
+): Promise<LoginResponse> {
+  const response = await api.post<LoginResponse>("/api/v1/auth/mfa/verify", {
+    mfaToken,
+    code,
+  });
+
+  return response.data;
+}
+
+/* =========================================================
+   MFA ENROLLMENT
+   Backend:
+   POST /api/v1/auth/mfa/enroll
+   ========================================================= */
+
+export async function enrollMfa(): Promise<MfaEnrollResponse> {
+  const response = await api.post<MfaEnrollResponse>("/api/v1/auth/mfa/enroll");
+
+  return response.data;
+}
+
+/* =========================================================
+   MFA CONFIRM
+   Backend:
+   POST /api/v1/auth/mfa/confirm
+   ========================================================= */
+
+export async function confirmMfa(code: string): Promise<void> {
+  await api.post("/api/v1/auth/mfa/confirm", {
+    code,
+  });
 }
 
 /* =========================================================
    FORGOT PASSWORD
    =========================================================
-   Kept as an export because ForgotPasswordPage imports it.
-
-   The current backend does NOT expose:
-   POST /api/auth/forgot-password
-
-   Therefore we don't make a fake backend request.
+   Basavaraj backend does not currently expose this endpoint.
    ========================================================= */
 
-export async function forgotPassword(email: string) {
-  void email;
-
+export async function forgotPassword(_email: string): Promise<void> {
   throw new Error("Forgot password is not available yet.");
 }
 
 /* =========================================================
    RESET PASSWORD
    =========================================================
-   Kept as an export because ResetPasswordPage imports it.
-
-   The current backend does NOT expose:
-   POST /api/auth/reset-password
+   Basavaraj backend does not currently expose this endpoint.
    ========================================================= */
 
-export async function resetPassword(token: string, password: string) {
-  void token;
-  void password;
-
+export async function resetPassword(
+  _token: string,
+  _password: string,
+): Promise<void> {
   throw new Error("Reset password is not available yet.");
 }

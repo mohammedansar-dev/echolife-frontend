@@ -1,26 +1,20 @@
 /* =========================================================
-   MEMORY TYPES
-   EchoLife Backend Integration
+   ECHOLIFE MEMORY TYPES
+   Backend-connected Memory domain
+========================================================= */
+
+/* =========================================================
+   FRONTEND MEMORY TYPES
 ========================================================= */
 
 export type MemoryType = "photo" | "video" | "audio" | "document";
 
-/* =========================================================
-   MEMORY CATEGORY
-========================================================= */
-
+/**
+ * Backend currently returns/accepts category values as strings.
+ * Keep this flexible so the existing Vault UI can use its
+ * own category labels without TypeScript conflicts.
+ */
 export type MemoryCategory = string;
-
-/* =========================================================
-   BACKEND PROMPT
-========================================================= */
-
-export interface BackendPrompt {
-  id: number;
-  question: string;
-  category: string;
-  active: boolean;
-}
 
 /* =========================================================
    BACKEND USER
@@ -31,6 +25,17 @@ export interface BackendMemoryUser {
   name: string;
   email: string;
   role: string;
+  active: boolean;
+}
+
+/* =========================================================
+   BACKEND PROMPT
+========================================================= */
+
+export interface BackendPrompt {
+  id: number;
+  question: string;
+  category: string;
   active: boolean;
 }
 
@@ -58,12 +63,42 @@ export interface BackendMemory {
   emotionalTone: string;
 
   user: BackendMemoryUser;
+
+  /*
+   * These fields are supported by some versions of the
+   * EchoLife backend / governance integration.
+   *
+   * They remain optional because your verified Memory
+   * endpoint does not currently require them.
+   */
+  aiReflection?: string | null;
+
+  personaId?: number | null;
+
+  responseMode?: string | null;
+
+  createdAt?: string;
+
+  updatedAt?: string;
 }
 
 /* =========================================================
-   CREATE MEMORY REQUEST
+   BACKEND CREATE MEMORY REQUEST
 ========================================================= */
 
+/**
+ * IMPORTANT:
+ *
+ * This is intentionally based on the backend request that
+ * you successfully tested in Swagger.
+ *
+ * Do not send frontend-only fields such as:
+ * - id
+ * - user
+ * - password
+ * - createdAt
+ * - updatedAt
+ */
 export interface CreateMemoryRequest {
   title: string;
 
@@ -83,7 +118,29 @@ export interface CreateMemoryRequest {
 }
 
 /* =========================================================
-   BACKEND MEDIA
+   BACKEND UPDATE REQUEST
+========================================================= */
+
+export interface UpdateMemoryRequest {
+  title?: string;
+
+  description?: string;
+
+  memoryDate?: string;
+
+  isTimeCapsule?: boolean;
+
+  unlockDate?: string | null;
+
+  prompt?: BackendPrompt | null;
+
+  aiReflectionSummary?: string;
+
+  emotionalTone?: string;
+}
+
+/* =========================================================
+   BACKEND MEMORY MEDIA
 ========================================================= */
 
 export interface BackendMemoryMedia {
@@ -95,10 +152,28 @@ export interface BackendMemoryMedia {
 }
 
 /* =========================================================
-   MEDIA UPLOAD RESPONSE
+   MEDIA COMPATIBILITY TYPES
 ========================================================= */
 
+export interface MemoryMedia {
+  id: number;
+
+  fileUrl: string;
+
+  mediaType: string;
+}
+
 export interface MemoryMediaUploadResponse {
+  id?: number;
+
+  fileUrl?: string;
+
+  mediaType?: string;
+
+  [key: string]: unknown;
+}
+
+export interface MemoryUploadResult {
   id?: number;
 
   fileUrl?: string;
@@ -112,8 +187,27 @@ export interface MemoryMediaUploadResponse {
    FRONTEND MEMORY
 ========================================================= */
 
+/**
+ * This is the model used by the existing Memory Vault UI.
+ *
+ * BackendMemory and Memory are intentionally different:
+ *
+ * BackendMemory = API representation
+ * Memory        = UI representation
+ */
 export interface Memory {
+  /**
+   * String ID used by existing frontend components.
+   *
+   * Example:
+   * "memory-1"
+   * "backend-5"
+   */
   id: string;
+
+  /**
+   * Actual backend database ID.
+   */
   backendId?: number;
 
   title: string;
@@ -124,12 +218,71 @@ export interface Memory {
 
   fileName: string;
 
+  /**
+   * Local browser file/object URL.
+   */
   fileData?: string;
 
-  /*
-   * Used by older upload/mock components.
+  /**
+   * Existing frontend uses `date`.
+   * Backend uses `memoryDate`.
    */
-  file?: File;
+  date: string;
+
+  /**
+   * Original backend date.
+   */
+  memoryDate?: string;
+
+  /**
+   * Frontend category.
+   */
+  category: MemoryCategory;
+
+  /**
+   * Existing frontend metadata.
+   *
+   * The current backend Memory response does not provide
+   * a people[] field, so this is frontend-only.
+   */
+  people: string[];
+
+  /**
+   * Human-readable file size.
+   */
+  size: string;
+
+  thumbnail?: string;
+
+  isTimeCapsule?: boolean;
+
+  unlockDate?: string | null;
+
+  createdAt?: string;
+
+  updatedAt?: string;
+
+  aiReflection?: string | null;
+
+  aiReflectionSummary?: string;
+
+  emotionalTone?: string;
+
+  personaId?: number | null;
+
+  responseMode?: string | null;
+
+  media?: BackendMemoryMedia[];
+}
+
+/* =========================================================
+   FRONTEND CREATE INPUT
+========================================================= */
+
+export interface CreateMemoryInput {
+  title: string;
+
+  description: string;
 
   date: string;
 
@@ -137,23 +290,83 @@ export interface Memory {
 
   people: string[];
 
+  type: MemoryType;
+
+  fileName: string;
+
   size: string;
 
   thumbnail?: string;
 
+  /**
+   * Original browser file.
+   *
+   * This is frontend-only and is NOT sent as part of
+   * the JSON memory creation request.
+   */
+  file?: File;
+
   isTimeCapsule?: boolean;
 
-  unlockDate?: string;
+  unlockDate?: string | null;
 
-  /*
-   * Optional because older mock memories
-   * don't contain createdAt.
-   */
-  createdAt?: string;
+  aiReflection?: string | null;
 
   aiReflectionSummary?: string;
 
   emotionalTone?: string;
 
-  media?: BackendMemoryMedia[];
+  personaId?: number | null;
+
+  responseMode?: string | null;
 }
+
+/* =========================================================
+   FRONTEND UPDATE INPUT
+========================================================= */
+
+export interface UpdateMemoryInput {
+  title?: string;
+
+  description?: string;
+
+  date?: string;
+
+  category?: MemoryCategory;
+
+  people?: string[];
+
+  type?: MemoryType;
+
+  fileName?: string;
+
+  size?: string;
+
+  thumbnail?: string;
+
+  fileData?: string;
+
+  file?: File;
+
+  isTimeCapsule?: boolean;
+
+  unlockDate?: string | null;
+
+  aiReflection?: string | null;
+
+  aiReflectionSummary?: string;
+
+  emotionalTone?: string;
+
+  personaId?: number | null;
+
+  responseMode?: string | null;
+}
+
+/* =========================================================
+   MEMORY API RESULT TYPES
+========================================================= */
+
+export interface MemoryListResponse extends Array<BackendMemory> {}
+
+export interface MemoryResponse extends BackendMemory {}

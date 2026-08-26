@@ -64,7 +64,7 @@ function RegisterPage() {
       password: "",
       confirmPassword: "",
       dateOfBirth: "",
-      preferredLanguage: "English",
+      preferredLanguage: "en",
     },
   });
 
@@ -178,10 +178,10 @@ function RegisterPage() {
           {...register("dateOfBirth")}
         />
 
-        <div className="space-y-1.5">
+        <div>
           <label
             htmlFor="register-language"
-            className="block text-sm font-medium text-slate-700"
+            className="mb-1.5 block text-sm font-medium text-slate-700"
           >
             Preferred language
           </label>
@@ -191,13 +191,15 @@ function RegisterPage() {
             className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             {...register("preferredLanguage")}
           >
-            <option value="English">English</option>
-            <option value="Kannada">Kannada</option>
-            <option value="Hindi">Hindi</option>
+            <option value="en">English</option>
+
+            <option value="kn">Kannada</option>
+
+            <option value="hi">Hindi</option>
           </select>
 
-          {errors.preferredLanguage?.message && (
-            <p className="text-xs text-red-600">
+          {errors.preferredLanguage && (
+            <p className="mt-1 text-xs text-red-600">
               {errors.preferredLanguage.message}
             </p>
           )}

@@ -158,19 +158,19 @@ function DashboardPage() {
       title: "Add Memory",
       description: "Save a special moment",
       icon: <Plus size={18} />,
-      onClick: () => navigate("/app/memories"),
+      onClick: () => navigate("/app/vault/upload"),
     },
     {
       title: "Upload Files",
       description: "Photos, videos & more",
       icon: <Upload size={18} />,
-      onClick: () => navigate("/app/upload"),
+      onClick: () => navigate("/app/vault/upload"),
     },
     {
-      title: "New Vault",
-      description: "Organize your memories",
+      title: "Memory Vault",
+      description: "View and organize your memories",
       icon: <FolderOpen size={18} />,
-      onClick: () => navigate("/app/memory-vault"),
+      onClick: () => navigate("/app/vault"),
     },
     {
       title: "AI Session",
@@ -225,7 +225,7 @@ function DashboardPage() {
             <button
               type="button"
               className="dashboard-hero-button"
-              onClick={() => navigate("/app/memories")}
+              onClick={() => navigate("/app/vault/upload")}
             >
               <Plus size={16} />
               Add Memory
@@ -372,7 +372,7 @@ function DashboardPage() {
                 <button
                   type="button"
                   className="dashboard-panel-link"
-                  onClick={() => navigate("/app/memory-vault")}
+                  onClick={() => navigate("/app/vault")}
                 >
                   View all
                 </button>
@@ -395,7 +395,7 @@ function DashboardPage() {
                 <button
                   type="button"
                   className="empty-memories-button"
-                  onClick={() => navigate("/app/memories")}
+                  onClick={() => navigate("/app/vault/upload")}
                 >
                   <Plus size={14} />
                   Add Memory
@@ -408,7 +408,7 @@ function DashboardPage() {
                     type="button"
                     key={memory.id}
                     className="recent-memory-row"
-                    onClick={() => navigate(`/app/memories/${memory.id}`)}
+                    onClick={() => navigate(`/app/vault/${memory.id}`)}
                   >
                     <div className="memory-preview">
                       {memory.thumbnail ? (

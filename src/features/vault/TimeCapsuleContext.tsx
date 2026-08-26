@@ -189,7 +189,7 @@ export function TimeCapsuleProvider({ children }: { children: ReactNode }) {
 
         updatedAt: now,
 
-        isOpened: input.isOpened ?? false,
+        isOpened: false,
       };
 
       setCapsules((current) => [capsule, ...current]);

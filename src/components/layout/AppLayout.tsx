@@ -1,7 +1,7 @@
-import { Bell, ChevronDown, Menu, ShieldCheck, X } from "lucide-react";
-
+import { Bell, ChevronDown, LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 
+import { useAuth } from "../../features/auth/AuthContext";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import "./AppLayout.css";
@@ -121,10 +121,24 @@ function AppLayout() {
 
   const navigate = useNavigate();
 
+  const { user, logout } = useAuth();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      setProfileOpen(false);
+      setSidebarOpen(false);
+
+      navigate("/login", {
+        replace: true,
+      });
+    }
+  };
   /* =======================================================
      ACTIVE NAVIGATION
   ======================================================= */
@@ -339,12 +353,19 @@ function AppLayout() {
                 className="app-profile-button"
                 onClick={() => setProfileOpen((current) => !current)}
               >
-                <span className="app-profile-avatar">AH</span>
+                <span className="app-profile-avatar">
+                  {(user?.displayName?.trim() || "User")
+                    .split(" ")
+                    .map((name) => name.charAt(0))
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </span>
 
                 <span className="app-profile-info">
-                  <strong>Ansar</strong>
+                  <strong>{user?.displayName?.trim() || "User"}</strong>
 
-                  <small>Family owner</small>
+                  <small>{user?.role || "Member"}</small>
                 </span>
 
                 <ChevronDown
@@ -384,9 +405,10 @@ function AppLayout() {
                   <button
                     type="button"
                     className="danger"
-                    onClick={() => setProfileOpen(false)}
+                    onClick={handleLogout}
                   >
-                    Sign out
+                    <LogOut size={15} />
+                    <span>Sign out</span>
                   </button>
                 </div>
               )}

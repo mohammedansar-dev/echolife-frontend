@@ -1,145 +1,177 @@
 import api from "../../api/axios";
 
 import type {
-  BackendMemory,
-  BackendMemoryMedia,
-  CreateMemoryRequest,
-  MemoryMediaUploadResponse,
-  MemoryType,
+  CreateMemoryInput,
+  Memory,
+  UpdateMemoryInput,
 } from "./memory.types";
 
 /* =========================================================
-   GET USER MEMORIES
+   HELPERS
 ========================================================= */
 
-export async function getMemoriesByUserIdApi(
-  userId: number,
-): Promise<BackendMemory[]> {
-  const response = await api.get<BackendMemory[]>(
-    `/api/memories/user/${userId}`,
-  );
+function normalizeMemory(data: any): Memory {
+  const backendId = typeof data?.id === "number" ? data.id : Number(data?.id);
 
-  return response.data;
+  const date =
+    data?.memoryDate || data?.date || new Date().toISOString().slice(0, 10);
+
+  return {
+    id: String(backendId),
+
+    backendId: Number.isFinite(backendId) ? backendId : undefined,
+
+    title: data?.title || "",
+
+    description: data?.description || "",
+
+    type:
+      data?.type === "video" ||
+      data?.type === "audio" ||
+      data?.type === "document"
+        ? data.type
+        : "photo",
+
+    fileName: data?.fileName || "",
+
+    fileData: data?.fileData,
+
+    date,
+
+    memoryDate: data?.memoryDate || date,
+
+    category: data?.category || "Other",
+
+    people: Array.isArray(data?.people) ? data.people : [],
+
+    size: data?.size || "",
+
+    thumbnail: data?.thumbnail,
+
+    isTimeCapsule: Boolean(data?.isTimeCapsule),
+
+    unlockDate: data?.unlockDate ?? null,
+
+    createdAt: data?.createdAt,
+
+    updatedAt: data?.updatedAt,
+
+    aiReflectionSummary: data?.aiReflectionSummary,
+
+    emotionalTone: data?.emotionalTone,
+
+    media: Array.isArray(data?.media) ? data.media : [],
+  };
+}
+
+/* =========================================================
+   GET MEMORIES
+========================================================= */
+
+export async function getMemories(userId: number): Promise<Memory[]> {
+  const response = await api.get(`/api/memories/user/${userId}`);
+
+  const data = response.data;
+
+  const list = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.memories)
+      ? data.memories
+      : [];
+
+  return list.map(normalizeMemory);
+}
+
+/* =========================================================
+   GET SINGLE MEMORY
+========================================================= */
+
+export async function getMemoryById(id: string | number): Promise<Memory> {
+  const response = await api.get(`/api/memories/${id}`);
+
+  return normalizeMemory(response.data);
 }
 
 /* =========================================================
    CREATE MEMORY
 ========================================================= */
 
-export async function createMemoryApi(
+export async function createMemory(
   userId: number,
-  payload: CreateMemoryRequest,
-): Promise<BackendMemory> {
-  const response = await api.post<BackendMemory>(
-    `/api/memories/user/${userId}`,
-    payload,
-  );
+  input: CreateMemoryInput,
+): Promise<Memory> {
+  const payload = {
+    title: input.title.trim(),
 
-  return response.data;
+    description: input.description.trim(),
+
+    memoryDate: input.date,
+
+    isTimeCapsule: input.isTimeCapsule ?? false,
+
+    unlockDate: input.unlockDate ?? null,
+
+    emotionalTone: input.emotionalTone || "",
+
+    aiReflectionSummary: input.aiReflectionSummary || "",
+  };
+
+  const response = await api.post(`/api/memories/user/${userId}`, payload);
+
+  return normalizeMemory(response.data);
 }
 
 /* =========================================================
-   GET MEMORY
+   UPDATE MEMORY
 ========================================================= */
 
-export async function getMemoryByIdApi(
-  memoryId: number,
-): Promise<BackendMemory> {
-  const response = await api.get<BackendMemory>(`/api/memories/${memoryId}`);
+export async function updateMemory(
+  id: string | number,
+  input: UpdateMemoryInput,
+): Promise<Memory> {
+  const payload: Record<string, unknown> = {};
 
-  return response.data;
+  if (input.title !== undefined) {
+    payload.title = input.title.trim();
+  }
+
+  if (input.description !== undefined) {
+    payload.description = input.description.trim();
+  }
+
+  if (input.date !== undefined) {
+    payload.memoryDate = input.date;
+  }
+
+  if (input.category !== undefined) {
+    payload.category = input.category;
+  }
+
+  if (input.isTimeCapsule !== undefined) {
+    payload.isTimeCapsule = input.isTimeCapsule;
+  }
+
+  if (input.unlockDate !== undefined) {
+    payload.unlockDate = input.unlockDate;
+  }
+
+  if (input.aiReflectionSummary !== undefined) {
+    payload.aiReflectionSummary = input.aiReflectionSummary;
+  }
+
+  if (input.emotionalTone !== undefined) {
+    payload.emotionalTone = input.emotionalTone;
+  }
+
+  const response = await api.put(`/api/memories/${id}`, payload);
+
+  return normalizeMemory(response.data);
 }
 
 /* =========================================================
    DELETE MEMORY
 ========================================================= */
 
-export async function deleteMemoryApi(memoryId: number): Promise<void> {
-  await api.delete(`/api/memories/${memoryId}`);
-}
-
-/* =========================================================
-   GET UNLOCKED MEMORIES
-========================================================= */
-
-export async function getUnlockedMemoriesApi(
-  userId: number,
-): Promise<BackendMemory[]> {
-  const response = await api.get<BackendMemory[]>(
-    `/api/memories/user/${userId}/unlocked`,
-  );
-
-  return response.data;
-}
-
-/* =========================================================
-   GET LOCKED TIME CAPSULES
-========================================================= */
-
-export async function getLockedTimeCapsulesApi(
-  userId: number,
-): Promise<BackendMemory[]> {
-  const response = await api.get<BackendMemory[]>(
-    `/api/memories/user/${userId}/time-capsules`,
-  );
-
-  return response.data;
-}
-
-/* =========================================================
-   UPLOAD MEDIA
-========================================================= */
-
-export async function uploadMemoryMediaApi(
-  memoryId: number,
-  file: File,
-  mediaType: MemoryType,
-): Promise<MemoryMediaUploadResponse> {
-  const formData = new FormData();
-
-  formData.append("file", file);
-
-  const response = await api.post<MemoryMediaUploadResponse>(
-    `/api/media/memory/${memoryId}/upload`,
-    formData,
-    {
-      params: {
-        mediaType,
-      },
-    },
-  );
-
-  return response.data;
-}
-
-/* =========================================================
-   GET MEMORY MEDIA
-========================================================= */
-
-export async function getMemoryMediaApi(
-  memoryId: number,
-): Promise<BackendMemoryMedia[]> {
-  const response = await api.get<BackendMemoryMedia[]>(
-    `/api/media/memory/${memoryId}`,
-  );
-
-  return response.data;
-}
-
-/* =========================================================
-   MEDIA FILE URL
-========================================================= */
-
-export function getMediaFileUrl(fileUrl: string): string {
-  if (!fileUrl) {
-    return "";
-  }
-
-  if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
-    return fileUrl;
-  }
-
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
-  return `${baseUrl}${fileUrl.startsWith("/") ? "" : "/"}${fileUrl}`;
+export async function deleteMemory(id: string | number): Promise<void> {
+  await api.delete(`/api/memories/${id}`);
 }

@@ -30,6 +30,10 @@ export interface TimeCapsule {
 ========================================================= */
 
 export interface CreateTimeCapsuleInput {
+  /*
+   * Optional because the frontend can generate
+   * an ID when creating a capsule.
+   */
   id?: string;
 
   memoryId: string;
@@ -39,8 +43,6 @@ export interface CreateTimeCapsuleInput {
   message: string;
 
   unlockDate: string;
-
-  isOpened?: boolean;
 }
 
 /* =========================================================

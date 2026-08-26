@@ -4,13 +4,18 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import Button from "../../../components/ui/Button";
 
+import { useAuth } from "../AuthContext";
+
 interface MFAState {
   email?: string;
+  mfaToken?: string;
 }
 
 function MFAPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { completeMfaLogin } = useAuth();
 
   const state = location.state as MFAState | null;
 
@@ -26,27 +31,49 @@ function MFAPage() {
       return;
     }
 
+    if (!state?.mfaToken) {
+      setError("Your MFA session is missing or expired. Please sign in again.");
+      return;
+    }
+
     setError("");
     setIsSubmitting(true);
 
     try {
       /*
-       * Backend MFA verification will be
-       * connected here.
+       * This performs:
        *
-       * Example:
+       * POST /api/v1/auth/mfa/verify
        *
-       * await verifyMFA({
-       *   email: state?.email,
-       *   code,
-       * });
+       * and then updates AuthContext.user.
        */
+      await completeMfaLogin(state.mfaToken, code);
 
+      /*
+       * AuthContext is now authenticated.
+       */
       navigate("/app/dashboard", {
         replace: true,
       });
-    } catch {
-      setError("The verification code is invalid or expired.");
+    } catch (error: any) {
+      console.error("EchoLife MFA verification failed:", error);
+
+      const backendResponse = error?.response?.data;
+
+      let message = "The verification code is invalid or expired.";
+
+      if (typeof backendResponse === "string") {
+        message = backendResponse;
+      } else if (
+        backendResponse &&
+        typeof backendResponse.message === "string"
+      ) {
+        message = backendResponse.message;
+      } else if (error instanceof Error && error.message) {
+        message = error.message;
+      }
+
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -55,7 +82,7 @@ function MFAPage() {
   return (
     <AuthLayout
       title="Verify your identity"
-      description={`Enter the verification code sent to ${
+      description={`Enter the verification code from your authenticator app for ${
         state?.email ?? "your account"
       }.`}
     >

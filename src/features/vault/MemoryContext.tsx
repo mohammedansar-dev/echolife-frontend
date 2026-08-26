@@ -11,60 +11,64 @@ import {
 import { useAuth } from "../auth/AuthContext";
 
 import {
-  deleteMemoryApi,
-  getMemoryByIdApi,
-  getMemoriesByUserIdApi,
-  getMemoryMediaApi,
-  getUnlockedMemoriesApi,
-  getLockedTimeCapsulesApi,
-  uploadMemoryMediaApi,
+  createMemory as createMemoryApi,
+  deleteMemory as deleteMemoryApi,
+  getMemoryById as getMemoryByIdApi,
+  getMemories as getMemoriesApi,
+  updateMemory as updateMemoryApi,
 } from "./MemoryAPI";
 
-import type { BackendMemory, Memory, MemoryType } from "./memory.types";
+import type {
+  CreateMemoryInput,
+  Memory,
+  UpdateMemoryInput,
+} from "./memory.types";
 
 /* =========================================================
-   CONTEXT TYPE
+   TYPES
 ========================================================= */
 
 interface MemoryContextValue {
   memories: Memory[];
 
-  loading: boolean;
+  /* Current naming */
+  isLoading: boolean;
+  isCreating: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
 
-  /*
-   * Kept for compatibility with existing pages.
-   */
-  hydrated: boolean;
+  /* Compatibility with existing Memory pages */
+  loading: boolean;
+  initialized: boolean;
 
   error: string | null;
 
   refreshMemories: () => Promise<void>;
 
-  addMemory: (memory: Memory) => Promise<void>;
+  getMemory: (id: string | number) => Promise<Memory | null>;
 
-  updateMemory: (memory: Memory) => Promise<void>;
+  /*
+   * Existing MemoryDetailsPage uses this name.
+   * Keep it as an alias of getMemory().
+   */
+  getMemoryById: (id: string | number) => Promise<Memory | null>;
 
-  deleteMemory: (memoryId: string) => Promise<void>;
+  addMemory: (input: CreateMemoryInput) => Promise<Memory>;
 
-  getMemoryById: (memoryId: string) => Memory | undefined;
+  updateMemory: (
+    id: string | number,
+    input: UpdateMemoryInput,
+  ) => Promise<Memory>;
 
-  getBackendMemoryById: (memoryId: number) => Promise<BackendMemory>;
+  removeMemory: (id: string | number) => Promise<void>;
 
-  uploadMemoryFile: (
-    memoryId: number,
-    file: File,
-    mediaType: MemoryType,
-  ) => Promise<void>;
+  /*
+   * Existing MemoryDetailsPage uses deleteMemory().
+   * Keep it as an alias of removeMemory().
+   */
+  deleteMemory: (id: string | number) => Promise<void>;
 
-  getMemoryMediaFiles: (
-    memoryId: number,
-  ) => ReturnType<typeof getMemoryMediaApi>;
-
-  getUnlockedMemoryList: () => Promise<BackendMemory[]>;
-
-  getLockedTimeCapsuleList: () => Promise<BackendMemory[]>;
-
-  clearMemories: () => void;
+  clearError: () => void;
 }
 
 /* =========================================================
@@ -74,407 +78,405 @@ interface MemoryContextValue {
 const MemoryContext = createContext<MemoryContextValue | undefined>(undefined);
 
 /* =========================================================
-   MEDIA TYPE DETECTION
+   PROVIDER PROPS
 ========================================================= */
 
-function detectMemoryType(mediaType?: string): MemoryType {
-  const type = (mediaType || "").toLowerCase();
-
-  if (type.includes("image") || type.includes("photo")) {
-    return "photo";
-  }
-
-  if (type.includes("video") || type.includes("mp4") || type.includes("mov")) {
-    return "video";
-  }
-
-  if (type.includes("audio") || type.includes("mp3") || type.includes("wav")) {
-    return "audio";
-  }
-
-  return "document";
-}
-
-/* =========================================================
-   BACKEND → FRONTEND
-========================================================= */
-
-function mapBackendMemory(backendMemory: BackendMemory): Memory {
-  return {
-    id: String(backendMemory.id),
-
-    backendId: backendMemory.id,
-
-    title: backendMemory.title || "Untitled Memory",
-
-    description: backendMemory.description || "",
-
-    type: "document",
-
-    fileName: "",
-
-    fileData: "",
-
-    date: backendMemory.memoryDate,
-
-    category:
-      (backendMemory.prompt?.category as Memory["category"]) || "Personal",
-
-    people: [],
-
-    size: "",
-
-    thumbnail: "",
-
-    isTimeCapsule: backendMemory.isTimeCapsule,
-
-    unlockDate: backendMemory.unlockDate || undefined,
-
-    createdAt: backendMemory.memoryDate
-      ? `${backendMemory.memoryDate}T00:00:00.000Z`
-      : new Date().toISOString(),
-
-    aiReflectionSummary: backendMemory.aiReflectionSummary,
-
-    emotionalTone: backendMemory.emotionalTone,
-
-    media: [],
-  };
+interface MemoryProviderProps {
+  children: ReactNode;
 }
 
 /* =========================================================
    PROVIDER
 ========================================================= */
 
-export function MemoryProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+export function MemoryProvider({ children }: MemoryProviderProps) {
+  /*
+   * IMPORTANT:
+   *
+   * AuthContext is the single source of truth
+   * for the currently logged-in user.
+   *
+   * We do NOT independently read userId from
+   * localStorage here.
+   */
+
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+
+  /* =======================================================
+     STATE
+  ======================================================= */
 
   const [memories, setMemories] = useState<Memory[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [isCreating, setIsCreating] = useState(false);
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [initialized, setInitialized] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
   /* =======================================================
-     LOAD MEMORIES FROM BACKEND
+     USER ID
   ======================================================= */
 
-  const refreshMemories = useCallback(async () => {
+  const userId = useMemo(() => {
     if (!user?.id) {
-      setMemories([]);
-      setLoading(false);
-
-      return;
+      return null;
     }
 
-    const userId = Number(user.id);
+    const parsed = Number(user.id);
 
-    if (!Number.isFinite(userId)) {
-      setError("Invalid user ID. Unable to load memories.");
-
-      setMemories([]);
-      setLoading(false);
-
-      return;
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return null;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      /*
-       * Backend:
-       *
-       * GET /api/memories/user/{userId}
-       */
-
-      const backendMemories = await getMemoriesByUserIdApi(userId);
-
-      const mappedMemories = backendMemories.map(mapBackendMemory);
-
-      /*
-       * Media is a separate endpoint.
-       */
-
-      const memoriesWithMedia = await Promise.all(
-        mappedMemories.map(async (memory: Memory): Promise<Memory> => {
-          if (memory.backendId === undefined) {
-            return memory;
-          }
-
-          try {
-            const media = await getMemoryMediaApi(memory.backendId);
-
-            const firstMedia = media[0];
-
-            return {
-              ...memory,
-
-              type: detectMemoryType(firstMedia?.mediaType),
-
-              media,
-
-              thumbnail: firstMedia?.fileUrl || "",
-            };
-          } catch (mediaError) {
-            /*
-             * Do not make the entire
-             * memory disappear if media
-             * loading fails.
-             */
-
-            console.warn(
-              "Unable to load media for memory:",
-              memory.backendId,
-              mediaError,
-            );
-
-            return memory;
-          }
-        }),
-      );
-
-      setMemories(memoriesWithMedia);
-    } catch (requestError) {
-      console.error("Unable to load memories:", requestError);
-
-      setMemories([]);
-
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Unable to load your memories.",
-      );
-    } finally {
-      setLoading(false);
-    }
+    return parsed;
   }, [user?.id]);
 
   /* =======================================================
-     INITIAL LOAD
+     CLEAR ERROR
+  ======================================================= */
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  /* =======================================================
+     GET ALL MEMORIES
+  ======================================================= */
+
+  const refreshMemories = useCallback(async () => {
+    /*
+     * Wait until authentication has finished restoring.
+     */
+
+    if (authLoading) {
+      return;
+    }
+
+    /*
+     * If there is no authenticated user,
+     * clear memory state.
+     */
+
+    if (!isAuthenticated || userId === null) {
+      setMemories([]);
+      setInitialized(true);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await getMemoriesApi(userId);
+
+      setMemories(Array.isArray(result) ? result : []);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unable to load memories.";
+
+      setError(message);
+    } finally {
+      setIsLoading(false);
+      setInitialized(true);
+    }
+  }, [authLoading, isAuthenticated, userId]);
+
+  /* =======================================================
+     INITIAL LOAD / USER CHANGE
   ======================================================= */
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     void refreshMemories();
-  }, [refreshMemories]);
+  }, [authLoading, refreshMemories]);
 
   /* =======================================================
-     HYDRATED
+     GET SINGLE MEMORY
   ======================================================= */
 
-  const hydrated = !loading;
+  const getMemory = useCallback(
+    async (id: string | number): Promise<Memory | null> => {
+      if (!isAuthenticated || userId === null) {
+        const message = "Please log in before viewing a memory.";
 
-  /* =======================================================
-     ADD MEMORY
-  ======================================================= */
+        setError(message);
 
-  const addMemory = useCallback(async (memory: Memory) => {
-    setMemories((current) => {
-      const exists = current.some((item) => item.id === memory.id);
-
-      if (exists) {
-        return current;
+        return null;
       }
 
-      return [memory, ...current];
-    });
-  }, []);
+      setError(null);
+
+      try {
+        return await getMemoryByIdApi(id);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Unable to load memory.";
+
+        setError(message);
+
+        return null;
+      }
+    },
+    [isAuthenticated, userId],
+  );
+
+  /* =======================================================
+     GET MEMORY BY ID
+     Compatibility alias
+  ======================================================= */
+
+  const getMemoryById = useCallback(
+    async (id: string | number): Promise<Memory | null> => {
+      return getMemory(id);
+    },
+    [getMemory],
+  );
+
+  /* =======================================================
+     CREATE MEMORY
+  ======================================================= */
+
+  const addMemory = useCallback(
+    async (input: CreateMemoryInput): Promise<Memory> => {
+      /*
+       * IMPORTANT:
+       *
+       * If this condition passes, the frontend
+       * knows the user is logged in.
+       *
+       * The actual backend request is then sent
+       * using the REAL database user ID.
+       */
+
+      if (!isAuthenticated || userId === null) {
+        const message = "Please log in before creating a memory.";
+
+        setError(message);
+
+        throw new Error(message);
+      }
+
+      setIsCreating(true);
+      setError(null);
+
+      try {
+        const createdMemory = await createMemoryApi(userId, input);
+
+        setMemories((current) => {
+          const alreadyExists = current.some(
+            (memory) =>
+              memory.id === createdMemory.id ||
+              memory.backendId === createdMemory.backendId,
+          );
+
+          if (alreadyExists) {
+            return current.map((memory) =>
+              memory.id === createdMemory.id ||
+              memory.backendId === createdMemory.backendId
+                ? createdMemory
+                : memory,
+            );
+          }
+
+          return [createdMemory, ...current];
+        });
+
+        return createdMemory;
+      } catch (err) {
+        /*
+         * Preserve the actual backend error.
+         *
+         * For example:
+         *
+         * 403 Consent / Security Violation
+         *
+         * should NOT be converted into
+         * "Please log in".
+         */
+
+        const message =
+          err instanceof Error ? err.message : "Unable to create memory.";
+
+        setError(message);
+
+        throw new Error(message);
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [isAuthenticated, userId],
+  );
 
   /* =======================================================
      UPDATE MEMORY
-========================================================= */
+  ======================================================= */
 
-  const updateMemory = useCallback(async (memory: Memory) => {
-    /*
-     * IMPORTANT:
-     *
-     * Current Swagger does not provide
-     * PUT /api/memories/{id}.
-     *
-     * Therefore do not fake an update
-     * request.
-     */
+  const updateMemory = useCallback(
+    async (id: string | number, input: UpdateMemoryInput): Promise<Memory> => {
+      if (!isAuthenticated || userId === null) {
+        const message = "Please log in before updating a memory.";
 
-    setMemories((current) =>
-      current.map((item) =>
-        item.id === memory.id
-          ? {
-              ...item,
-              ...memory,
-            }
-          : item,
-      ),
-    );
-  }, []);
+        setError(message);
+
+        throw new Error(message);
+      }
+
+      setIsUpdating(true);
+      setError(null);
+
+      try {
+        const updatedMemory = await updateMemoryApi(id, input);
+
+        setMemories((current) =>
+          current.map((memory) =>
+            memory.id === String(id) || memory.backendId === Number(id)
+              ? updatedMemory
+              : memory,
+          ),
+        );
+
+        return updatedMemory;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Unable to update memory.";
+
+        setError(message);
+
+        throw new Error(message);
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [isAuthenticated, userId],
+  );
 
   /* =======================================================
      DELETE MEMORY
   ======================================================= */
 
-  const deleteMemory = useCallback(async (memoryId: string) => {
-    const numericId = Number(memoryId);
+  const removeMemory = useCallback(
+    async (id: string | number): Promise<void> => {
+      if (!isAuthenticated || userId === null) {
+        const message = "Please log in before deleting a memory.";
 
-    if (!Number.isFinite(numericId)) {
-      throw new Error("Invalid memory ID.");
-    }
+        setError(message);
 
-    /*
-     * Backend:
-     *
-     * DELETE /api/memories/{id}
-     */
+        throw new Error(message);
+      }
 
-    await deleteMemoryApi(numericId);
+      setIsDeleting(true);
+      setError(null);
 
-    setMemories((current) =>
-      current.filter((memory) => memory.id !== memoryId),
-    );
-  }, []);
+      try {
+        await deleteMemoryApi(id);
 
-  /* =======================================================
-     GET FROM CURRENT STATE
-  ======================================================= */
+        setMemories((current) =>
+          current.filter(
+            (memory) =>
+              memory.id !== String(id) && memory.backendId !== Number(id),
+          ),
+        );
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Unable to delete memory.";
 
-  const getMemoryById = useCallback(
-    (memoryId: string) => memories.find((memory) => memory.id === memoryId),
-    [memories],
-  );
+        setError(message);
 
-  /* =======================================================
-     GET FROM BACKEND
-  ======================================================= */
-
-  const getBackendMemoryById = useCallback(async (memoryId: number) => {
-    return getMemoryByIdApi(memoryId);
-  }, []);
-
-  /* =======================================================
-     UPLOAD MEDIA
-  ======================================================= */
-
-  const uploadMemoryFile = useCallback(
-    async (memoryId: number, file: File, mediaType: MemoryType) => {
-      /*
-       * Backend:
-       *
-       * POST /api/media/memory/{id}/upload
-       */
-
-      await uploadMemoryMediaApi(memoryId, file, mediaType);
-
-      /*
-       * Reload memory list after
-       * successful upload.
-       */
-
-      await refreshMemories();
+        throw new Error(message);
+      } finally {
+        setIsDeleting(false);
+      }
     },
-    [refreshMemories],
+    [isAuthenticated, userId],
   );
 
   /* =======================================================
-     GET MEDIA
+     DELETE MEMORY
+     Compatibility alias
   ======================================================= */
 
-  const getMemoryMediaFiles = useCallback((memoryId: number) => {
-    return getMemoryMediaApi(memoryId);
-  }, []);
-  /* =======================================================
-     GET UNLOCKED
-  ======================================================= */
-
-  const getUnlockedMemoryList = useCallback(async () => {
-    if (!user?.id) {
-      return [];
-    }
-
-    const userId = Number(user.id);
-
-    if (!Number.isFinite(userId)) {
-      return [];
-    }
-
-    return getUnlockedMemoriesApi(userId);
-  }, [user?.id]);
+  const deleteMemory = useCallback(
+    async (id: string | number): Promise<void> => {
+      return removeMemory(id);
+    },
+    [removeMemory],
+  );
 
   /* =======================================================
-     GET LOCKED TIME CAPSULES
-  ======================================================= */
-
-  const getLockedTimeCapsuleList = useCallback(async () => {
-    if (!user?.id) {
-      return [];
-    }
-
-    const userId = Number(user.id);
-
-    if (!Number.isFinite(userId)) {
-      return [];
-    }
-
-    return getLockedTimeCapsulesApi(userId);
-  }, [user?.id]);
-
-  /* =======================================================
-     CLEAR
-  ======================================================= */
-
-  const clearMemories = useCallback(() => {
-    setMemories([]);
-  }, []);
-
-  /* =======================================================
-     VALUE
+     CONTEXT VALUE
   ======================================================= */
 
   const value = useMemo<MemoryContextValue>(
     () => ({
       memories,
 
-      loading,
+      /* Current state names */
+      isLoading,
+      isCreating,
+      isUpdating,
+      isDeleting,
 
-      hydrated,
+      /* Compatibility names */
+      loading: isLoading,
+      initialized,
 
       error,
 
+      /* Memory loading */
       refreshMemories,
 
-      addMemory,
-
-      updateMemory,
-
-      deleteMemory,
-
+      /* Single memory */
+      getMemory,
       getMemoryById,
 
-      getBackendMemoryById,
+      /* Create */
+      addMemory,
 
-      uploadMemoryFile,
+      /* Update */
+      updateMemory,
 
-      getMemoryMediaFiles,
+      /* Delete */
+      removeMemory,
+      deleteMemory,
 
-      getUnlockedMemoryList,
-
-      getLockedTimeCapsuleList,
-
-      clearMemories,
+      /* Error */
+      clearError,
     }),
     [
       memories,
-      loading,
-      hydrated,
+
+      isLoading,
+      isCreating,
+      isUpdating,
+      isDeleting,
+
+      initialized,
+
       error,
+
       refreshMemories,
-      addMemory,
-      updateMemory,
-      deleteMemory,
+
+      getMemory,
       getMemoryById,
-      getBackendMemoryById,
-      uploadMemoryFile,
-      getMemoryMediaFiles,
-      getUnlockedMemoryList,
-      getLockedTimeCapsuleList,
-      clearMemories,
+
+      addMemory,
+
+      updateMemory,
+
+      removeMemory,
+      deleteMemory,
+
+      clearError,
     ],
   );
 
@@ -487,7 +489,7 @@ export function MemoryProvider({ children }: { children: ReactNode }) {
    HOOK
 ========================================================= */
 
-export function useMemory() {
+export function useMemory(): MemoryContextValue {
   const context = useContext(MemoryContext);
 
   if (!context) {
@@ -496,3 +498,5 @@ export function useMemory() {
 
   return context;
 }
+
+export default MemoryContext;

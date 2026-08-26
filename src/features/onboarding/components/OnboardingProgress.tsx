@@ -3,6 +3,7 @@ interface OnboardingProgressProps {
   totalSteps: number;
 }
 
+
 function OnboardingProgress({
   currentStep,
   totalSteps,
