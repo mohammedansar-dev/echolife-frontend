@@ -1,75 +1,69 @@
-# React + TypeScript + Vite
+# EchoLife Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+EchoLife is a modern digital memory platform that allows users to securely create, preserve, organize, and revisit meaningful memories with support for AI reflection, family sharing, and time capsules.
 
-Currently, two official plugins are available:
+The frontend is built with React + TypeScript and is designed to integrate with the EchoLife Spring Boot backend and PostgreSQL database.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- Vite
+- React Router
+- Axios
+- Tailwind CSS
+- Lucide React
+- Spring Boot Backend
+- PostgreSQL
+- Swagger / OpenAPI
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Frontend Structure
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+```text
+src/
+│
+├── api/
+│   └── axios.ts
+│
+├── features/
+│   ├── auth/
+│   │   ├── AuthContext.tsx
+│   │   ├── auth.api.ts
+│   │   ├── auth.types.ts
+│   │   └── pages/
+│   │
+│   ├── dashboard/
+│   │
+│   ├── vault/
+│   │   ├── MemoryAPI.ts
+│   │   ├── MemoryContext.tsx
+│   │   ├── memory.types.ts
+│   │   ├── components/
+│   │   ├── data/
+│   │   └── pages/
+│   │       ├── MemoryVaultPage.tsx
+│   │       ├── UploadMemoryPage.tsx
+│   │       └── MemoryDetailsPage.tsx
+│   │
+│   ├── family/
+│   ├── persona/
+│   ├── sessions/
+│   ├── reports/
+│   ├── billing/
+│   ├── daily-prompt/
+│   ├── ai-reflection/
+│   ├── legacy/
+│   ├── onboarding/
+│   ├── profile/
+│   └── settings/
+│
+├── services/
+│   ├── memoryService.ts
+│   └── memoryMediaService.ts
+│
+├── App.tsx
+└── main.tsx
