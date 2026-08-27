@@ -6,7 +6,7 @@ import {
   Settings2,
   Sparkles,
 } from "lucide-react";
-
+import { startSession } from "../session/session.api";
 import { useNavigate } from "react-router-dom";
 
 import { useMemory } from "../vault/MemoryContext";
@@ -14,12 +14,37 @@ import { useMemory } from "../vault/MemoryContext";
 import { usePersona } from "./PersonaContext";
 
 import "./PersonaPage.css";
+import { useState } from "react";
 
 function PersonaPage() {
   const navigate = useNavigate();
 
+  const [startingSession, setStartingSession] = useState(false);
   const { configuration, messages, hydrated, loading } = usePersona();
 
+  const handleStartConversation = async () => {
+    if (startingSession) {
+      return;
+    }
+
+    try {
+      setStartingSession(true);
+
+      const session = await startSession({
+        personaId: "family-persona",
+        mode: "STORY",
+        inputChannel: "TEXT",
+        outputChannel: "TEXT",
+        clientType: "WEB",
+      });
+
+      navigate(`/app/persona/conversation/${session.sessionId}`);
+    } catch (error) {
+      console.error("Failed to start session:", error);
+    } finally {
+      setStartingSession(false);
+    }
+  };
   const { memories } = useMemory();
 
   if (!hydrated || loading) {
@@ -76,10 +101,7 @@ function PersonaPage() {
             memories from your private Memory Vault.
           </p>
 
-          <button
-            type="button"
-            onClick={() => navigate("/app/persona/configure")}
-          >
+          <button type="button" onClick={handleStartConversation}>
             <Sparkles size={16} />
             Create Persona
           </button>
@@ -168,10 +190,11 @@ function PersonaPage() {
         <button
           type="button"
           className="persona-hero-action"
-          onClick={() => navigate("/app/persona/conversation")}
+          onClick={handleStartConversation}
+          disabled={startingSession}
         >
           <MessageCircle size={17} />
-          Start conversation
+          {startingSession ? "Starting..." : "Start conversation"}
         </button>
       </section>
 
@@ -297,9 +320,10 @@ function PersonaPage() {
 
         <button
           type="button"
-          onClick={() => navigate("/app/persona/conversation")}
+          onClick={handleStartConversation}
+          disabled={startingSession}
         >
-          Open conversation
+          {startingSession ? "Starting..." : "Open conversation"}
           <ChevronRight size={16} />
         </button>
       </section>

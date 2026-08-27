@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import {
   ArrowLeft,
   Bot,
@@ -9,10 +10,14 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
+
 import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
+
+import { getSession } from "./session.api";
+import type { SessionRecord } from "./session.types";
 
 import "./SessionConversationPage.css";
 
@@ -54,12 +59,70 @@ function SessionConversationPage() {
   const navigate = useNavigate();
   const { sessionId } = useParams();
 
+  const [session, setSession] = useState<SessionRecord | null>(null);
+
+  const [sessionLoading, setSessionLoading] = useState(true);
+
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
   const [messages, setMessages] =
     useState<ConversationMessage[]>(initialMessages);
 
   const [message, setMessage] = useState("");
 
   const [sending, setSending] = useState(false);
+
+  /* =========================================================
+     LOAD REAL S2 SESSION
+  ========================================================= */
+
+  useEffect(() => {
+    if (!sessionId) {
+      setSessionError("Session ID is missing.");
+      setSessionLoading(false);
+      return;
+    }
+
+    let active = true;
+
+    async function loadSession() {
+      setSessionLoading(true);
+      setSessionError(null);
+
+      try {
+        const result = await getSession(sessionId);
+
+        if (active) {
+          setSession(result);
+        }
+      } catch (error) {
+        console.error("Failed to load session:", error);
+
+        if (active) {
+          setSessionError(
+            error instanceof Error ? error.message : "Unable to load session.",
+          );
+        }
+      } finally {
+        if (active) {
+          setSessionLoading(false);
+        }
+      }
+    }
+
+    void loadSession();
+
+    return () => {
+      active = false;
+    };
+  }, [sessionId]);
+  /* =========================================================
+     SEND MESSAGE
+     
+     S2 currently does not expose a message endpoint.
+     Therefore this keeps the existing temporary frontend
+     conversation behavior for now.
+  ========================================================= */
 
   const handleSend = () => {
     const trimmedMessage = message.trim();
@@ -78,6 +141,7 @@ function SessionConversationPage() {
     setMessages((current) => [...current, newMessage]);
 
     setMessage("");
+
     setSending(true);
 
     window.setTimeout(() => {
@@ -94,6 +158,74 @@ function SessionConversationPage() {
     }, 700);
   };
 
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
+  if (sessionLoading) {
+    return (
+      <main className="session-conversation-page">
+        <div className="session-conversation-loading">
+          <h2>Loading session...</h2>
+
+          <p>Preparing your conversation.</p>
+        </div>
+      </main>
+    );
+  }
+
+  /* =========================================================
+     ERROR
+  ========================================================= */
+
+  if (sessionError || !session) {
+    return (
+      <main className="session-conversation-page">
+        <div className="session-conversation-loading">
+          <h2>Unable to load session</h2>
+
+          <p>{sessionError || "Session could not be found."}</p>
+
+          <Button variant="outline" onClick={() => navigate("/app/persona")}>
+            Back to Persona
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  /* =========================================================
+     DERIVED SESSION DATA
+  ========================================================= */
+
+  const sessionStatus = session.status;
+
+  const statusLabel =
+    sessionStatus === "ACTIVE"
+      ? "Active"
+      : sessionStatus === "ENDED"
+        ? "Ended"
+        : "Expired";
+
+  const statusVariant = sessionStatus === "ACTIVE" ? "success" : "neutral";
+
+  const sessionDate = new Date(session.createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const personaLabel =
+    session.personaId === "family-persona"
+      ? "Family Memory Persona"
+      : session.personaId;
+
+  const modeLabel = session.mode.replaceAll("_", " ");
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
+
   return (
     <main className="session-conversation-page">
       {/* =====================================================
@@ -108,6 +240,7 @@ function SessionConversationPage() {
             onClick={() => navigate(`/app/sessions/${sessionId}`)}
           >
             <ArrowLeft size={15} />
+
             <span>Back to session</span>
           </button>
 
@@ -118,14 +251,16 @@ function SessionConversationPage() {
 
             <div>
               <div className="session-title-line">
-                <h1>Family memories conversation</h1>
+                <h1>{personaLabel}</h1>
 
-                <Badge variant="success" dot>
-                  Completed
+                <Badge variant={statusVariant} dot>
+                  {statusLabel}
                 </Badge>
               </div>
 
-              <p>Preserved family conversation</p>
+              <p>
+                {modeLabel} · {session.outputChannel}
+              </p>
             </div>
           </div>
         </div>
@@ -156,15 +291,18 @@ function SessionConversationPage() {
               </div>
 
               <div>
-                <strong>Family Memory Persona</strong>
+                <strong>{personaLabel}</strong>
 
-                <span>Warm & caring</span>
+                <span>Session {session.sessionId}</span>
               </div>
             </div>
 
             <div className="session-chat-status">
               <span />
-              Conversation preserved
+
+              {sessionStatus === "ACTIVE"
+                ? "Conversation active"
+                : "Conversation ended"}
             </div>
           </div>
 
@@ -172,7 +310,7 @@ function SessionConversationPage() {
 
           <div className="session-conversation-messages">
             <div className="session-date-divider">
-              <span>Aug 22, 2026</span>
+              <span>{sessionDate}</span>
             </div>
 
             {messages.map((item) => (
@@ -192,7 +330,7 @@ function SessionConversationPage() {
 
                 <div className="session-message-body">
                   <div className="session-message-author">
-                    {item.sender === "user" ? "You" : "Family Persona"}
+                    {item.sender === "user" ? "You" : personaLabel}
                   </div>
 
                   <div className="session-message-bubble">{item.text}</div>
@@ -215,7 +353,7 @@ function SessionConversationPage() {
                 </div>
 
                 <div className="session-message-body">
-                  <div className="session-message-author">Family Persona</div>
+                  <div className="session-message-author">{personaLabel}</div>
 
                   <div className="session-typing">
                     <span />
@@ -231,8 +369,7 @@ function SessionConversationPage() {
 
           <div className="session-conversation-composer">
             <div className="session-readonly-note">
-              This is a preserved session. New messages are shown as a temporary
-              preview.
+              Session: {session.sessionId}
             </div>
 
             <div className="session-composer-row">
@@ -246,14 +383,16 @@ function SessionConversationPage() {
                   }
                 }}
                 placeholder="Continue this conversation..."
-                disabled={sending}
+                disabled={sending || sessionStatus !== "ACTIVE"}
               />
 
               <button
                 type="button"
                 className="session-send-button"
                 onClick={handleSend}
-                disabled={!message.trim() || sending}
+                disabled={
+                  !message.trim() || sending || sessionStatus !== "ACTIVE"
+                }
                 aria-label="Send message"
               >
                 <Send size={15} />
@@ -283,16 +422,16 @@ function SessionConversationPage() {
                   Date
                 </span>
 
-                <strong>Aug 22, 2026</strong>
+                <strong>{sessionDate}</strong>
               </div>
 
               <div>
                 <span>
                   <Clock3 size={12} />
-                  Duration
+                  Status
                 </span>
 
-                <strong>18 minutes</strong>
+                <strong>{statusLabel}</strong>
               </div>
 
               <div>
@@ -321,15 +460,18 @@ function SessionConversationPage() {
               </div>
 
               <div>
-                <strong>Family Memory Persona</strong>
+                <strong>{personaLabel}</strong>
 
-                <span>Warm & caring</span>
+                <span>Mode: {modeLabel}</span>
               </div>
             </div>
 
             <div className="session-side-active">
               <span />
-              Approved memories enabled
+
+              {session.status === "ACTIVE"
+                ? "Session is active"
+                : "Session is no longer active"}
             </div>
           </div>
 

@@ -230,7 +230,7 @@ function App() {
                       />
 
                       <Route
-                        path="persona/conversation"
+                        path="persona/conversation/:sessionId"
                         element={<PersonaConversationPage />}
                       />
 

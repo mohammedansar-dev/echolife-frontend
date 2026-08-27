@@ -1,3 +1,18 @@
+import api from "../../api/axios";
+
+import { startSession, getSession, endSession } from "../session/session.api";
+
+import type {
+  SessionMode,
+  SessionChannel,
+  SessionRecord,
+  SessionResponse,
+} from "../session/session.types";
+
+/* =========================================================
+   PERSONA CONFIGURATION
+========================================================= */
+
 export interface PersonaConfiguration {
   name: string;
   tone: string;
@@ -10,108 +25,113 @@ export interface PersonaConfigurationResponse {
   data?: PersonaConfiguration;
 }
 
-export interface PersonaConversationRequest {
-  message: string;
-  personaName: string;
-  tone: string;
-  memoryIds: string[];
-}
-
-export interface PersonaConversationResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    response: string;
-  };
-}
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
-
 /* =========================================================
-   RESPONSE HANDLER
+   PERSONA SESSION
 ========================================================= */
 
-async function handleResponse<T>(response: Response): Promise<T> {
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message || `Request failed with status ${response.status}.`,
-    );
-  }
-
-  return data as T;
+export interface PersonaSessionRequest {
+  personaId: string;
+  mode: SessionMode;
+  inputChannel: SessionChannel;
+  outputChannel: SessionChannel;
+  clientType: string;
 }
 
 /* =========================================================
-   SAVE CONFIGURATION
+   LOCAL PERSONA STORAGE
+========================================================= */
+
+const PERSONA_STORAGE_KEY = "echolife_persona_configuration";
+
+/* =========================================================
+   SAVE PERSONA
 ========================================================= */
 
 export async function savePersonaConfiguration(
   configuration: PersonaConfiguration,
 ): Promise<PersonaConfigurationResponse> {
-  const response = await fetch(`${API_BASE_URL}/persona/configuration`, {
-    method: "POST",
+  localStorage.setItem(PERSONA_STORAGE_KEY, JSON.stringify(configuration));
 
-    headers: {
-      "Content-Type": "application/json",
-    },
-
-    credentials: "include",
-
-    body: JSON.stringify(configuration),
-  });
-
-  return handleResponse<PersonaConfigurationResponse>(response);
+  return {
+    success: true,
+    message: "Persona configuration saved.",
+    data: configuration,
+  };
 }
 
 /* =========================================================
-   GET CONFIGURATION
+   GET PERSONA
 ========================================================= */
 
 export async function getPersonaConfiguration(): Promise<PersonaConfigurationResponse> {
-  const response = await fetch(`${API_BASE_URL}/persona/configuration`, {
-    method: "GET",
+  const stored = localStorage.getItem(PERSONA_STORAGE_KEY);
 
-    credentials: "include",
-  });
+  if (!stored) {
+    return {
+      success: true,
+      message: "No Persona configuration found.",
+      data: undefined,
+    };
+  }
 
-  return handleResponse<PersonaConfigurationResponse>(response);
+  try {
+    const configuration = JSON.parse(stored) as PersonaConfiguration;
+
+    return {
+      success: true,
+      message: "Persona configuration loaded.",
+      data: configuration,
+    };
+  } catch {
+    localStorage.removeItem(PERSONA_STORAGE_KEY);
+
+    return {
+      success: true,
+      message: "No valid Persona configuration found.",
+      data: undefined,
+    };
+  }
 }
 
 /* =========================================================
-   RESET CONFIGURATION
+   RESET PERSONA
 ========================================================= */
 
 export async function resetPersonaConfiguration(): Promise<PersonaConfigurationResponse> {
-  const response = await fetch(`${API_BASE_URL}/persona/configuration`, {
-    method: "DELETE",
+  localStorage.removeItem(PERSONA_STORAGE_KEY);
 
-    credentials: "include",
-  });
-
-  return handleResponse<PersonaConfigurationResponse>(response);
+  return {
+    success: true,
+    message: "Persona configuration reset.",
+  };
 }
 
 /* =========================================================
-   SEND MESSAGE
+   START PERSONA SESSION
 ========================================================= */
 
-export async function sendPersonaMessage(
-  request: PersonaConversationRequest,
-): Promise<PersonaConversationResponse> {
-  const response = await fetch(`${API_BASE_URL}/persona/conversation`, {
-    method: "POST",
+export async function startPersonaSession(
+  request: PersonaSessionRequest,
+): Promise<SessionResponse> {
+  return startSession(request);
+}
 
-    headers: {
-      "Content-Type": "application/json",
-    },
+/* =========================================================
+   GET PERSONA SESSION
+========================================================= */
 
-    credentials: "include",
+export async function getPersonaSession(
+  sessionId: string,
+): Promise<SessionRecord> {
+  return getSession(sessionId);
+}
 
-    body: JSON.stringify(request),
-  });
+/* =========================================================
+   END PERSONA SESSION
+========================================================= */
 
-  return handleResponse<PersonaConversationResponse>(response);
+export async function endPersonaSession(
+  sessionId: string,
+): Promise<SessionResponse> {
+  return endSession(sessionId);
 }
