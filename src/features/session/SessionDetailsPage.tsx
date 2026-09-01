@@ -1,14 +1,14 @@
 import {
   ArrowLeft,
-  ArrowRight,
-  CalendarDays,
   CheckCircle2,
+  CalendarDays,
   Clock3,
   MessageCircle,
   MoreHorizontal,
   Sparkles,
   User,
 } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -23,11 +23,18 @@ import "./SessionDetailsPage.css";
 
 function SessionDetailsPage() {
   const navigate = useNavigate();
-  const { sessionId } = useParams();
+  const { sessionId } = useParams<{ sessionId: string }>();
 
   const [session, setSession] = useState<SessionRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  /* =========================================================
+     LOAD SESSION FROM S3
+     
+     Confirmed backend endpoint:
+     GET /api/v1/sessions/{sessionId}
+     ========================================================= */
 
   useEffect(() => {
     if (!sessionId) {
@@ -36,37 +43,43 @@ function SessionDetailsPage() {
       return;
     }
 
-    let cancelled = false;
+    let active = true;
 
     async function loadSession() {
+      setLoading(true);
+      setError("");
+
       try {
-        setLoading(true);
-        setError("");
+        const result = await getSession(sessionId);
 
-        const data = await getSession(sessionId);
-
-        if (!cancelled) {
-          setSession(data);
+        if (active) {
+          setSession(result);
         }
-      } catch (err) {
-        console.error("Failed to load session:", err);
+      } catch (error) {
+        console.error("Failed to load session:", error);
 
-        if (!cancelled) {
-          setError("Unable to load this session.");
+        if (active) {
+          setError(
+            error instanceof Error ? error.message : "Unable to load session.",
+          );
         }
       } finally {
-        if (!cancelled) {
+        if (active) {
           setLoading(false);
         }
       }
     }
 
-    loadSession();
+    void loadSession();
 
     return () => {
-      cancelled = true;
+      active = false;
     };
   }, [sessionId]);
+
+  /* =========================================================
+     LOADING
+     ========================================================= */
 
   if (loading) {
     return (
@@ -79,11 +92,16 @@ function SessionDetailsPage() {
     );
   }
 
+  /* =========================================================
+     ERROR
+     ========================================================= */
+
   if (error || !session) {
     return (
       <main className="session-details-page">
         <div className="session-details-error">
           <h1>Session unavailable</h1>
+
           <p>{error || "The requested session could not be found."}</p>
 
           <Button variant="primary" onClick={() => navigate("/app/sessions")}>
@@ -93,6 +111,10 @@ function SessionDetailsPage() {
       </main>
     );
   }
+
+  /* =========================================================
+     DERIVED DATA
+     ========================================================= */
 
   const createdDate = new Date(session.createdAt);
 
@@ -110,9 +132,18 @@ function SessionDetailsPage() {
   const statusLabel =
     session.status.charAt(0) + session.status.slice(1).toLowerCase();
 
+  const statusVariant =
+    session.status === "ACTIVE"
+      ? "success"
+      : session.status === "ENDED"
+        ? "success"
+        : "warning";
+
   return (
     <main className="session-details-page">
-      {/* HEADER */}
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
 
       <header className="session-details-header">
         <div>
@@ -134,16 +165,7 @@ function SessionDetailsPage() {
               <div className="session-details-title-row">
                 <h1>Session {session.sessionId}</h1>
 
-                <Badge
-                  variant={
-                    session.status === "ACTIVE"
-                      ? "success"
-                      : session.status === "ENDED"
-                        ? "success"
-                        : "warning"
-                  }
-                  dot
-                >
+                <Badge variant={statusVariant} dot>
                   {statusLabel}
                 </Badge>
               </div>
@@ -165,7 +187,9 @@ function SessionDetailsPage() {
         </button>
       </header>
 
-      {/* SUMMARY */}
+      {/* =====================================================
+          SUMMARY
+      ===================================================== */}
 
       <section className="session-details-summary">
         <div className="session-summary-item">
@@ -213,7 +237,9 @@ function SessionDetailsPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
 
       <div className="session-details-layout">
         <section className="session-details-main">
@@ -298,7 +324,9 @@ function SessionDetailsPage() {
           </Card>
         </section>
 
-        {/* SIDEBAR */}
+        {/* ===================================================
+            SIDEBAR
+        =================================================== */}
 
         <aside className="session-details-sidebar">
           <Card
@@ -319,16 +347,7 @@ function SessionDetailsPage() {
               <div>
                 <span>Status</span>
 
-                <Badge
-                  variant={
-                    session.status === "ACTIVE"
-                      ? "success"
-                      : session.status === "ENDED"
-                        ? "success"
-                        : "warning"
-                  }
-                  dot
-                >
+                <Badge variant={statusVariant} dot>
                   {statusLabel}
                 </Badge>
               </div>
@@ -377,11 +396,6 @@ function SessionDetailsPage() {
             >
               Open conversation
             </Button>
-
-            <p>
-              Conversation content is not currently provided by the Session
-              Orchestrator API.
-            </p>
           </div>
         </aside>
       </div>

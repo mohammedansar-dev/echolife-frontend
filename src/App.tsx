@@ -75,8 +75,6 @@ import SessionConversationPage from "./features/session/SessionConversationPage"
    PROMPTS
 ========================================================= */
 
-import DailyPromptPage from "./features/prompts/DailyPromptPage";
-
 /* =========================================================
    LEGACY
 ========================================================= */
@@ -240,11 +238,6 @@ function App() {
                       {/* =================================================
                          DAILY PROMPT
                       ================================================= */}
-
-                      <Route
-                        path="daily-prompt"
-                        element={<DailyPromptPage />}
-                      />
 
                       {/* =================================================
                          SESSIONS

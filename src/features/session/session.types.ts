@@ -41,3 +41,43 @@ export interface SessionRecord {
   expiresAtEpoch: number;
   policyVersion: number;
 }
+
+/*
+ * Session list item.
+ *
+ * Keep the backend session object as the source of truth.
+ */
+export type SessionListItem = SessionRecord;
+
+/*
+ * Message returned by S3.
+ *
+ * The backend can add additional fields without
+ * breaking the frontend.
+ */
+export interface SessionMessage {
+  id: string | number;
+  sessionId?: string;
+  role: "USER" | "ASSISTANT" | "SYSTEM";
+  content: string;
+  createdAt: string;
+}
+
+/*
+ * Send message request.
+ */
+export interface SendMessageRequest {
+  message: string;
+}
+
+/*
+ * Flexible message response wrapper.
+ *
+ * This allows the frontend to handle the common
+ * { data: ... } response shape without generating
+ * fake content.
+ */
+export interface SendMessageResponse {
+  message?: SessionMessage;
+  data?: SessionMessage;
+}

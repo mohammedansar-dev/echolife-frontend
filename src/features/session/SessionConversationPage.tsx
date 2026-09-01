@@ -16,44 +16,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 
-import { getSession } from "./session.api";
-import type { SessionRecord } from "./session.types";
+import {
+  endSession,
+  getSession,
+  getSessionMessages,
+  sendSessionMessage,
+} from "./session.api";
+
+import type { SessionMessage, SessionRecord } from "./session.types";
 
 import "./SessionConversationPage.css";
-
-interface ConversationMessage {
-  id: number;
-  sender: "persona" | "user";
-  text: string;
-  time: string;
-}
-
-const initialMessages: ConversationMessage[] = [
-  {
-    id: 1,
-    sender: "persona",
-    text: "What is one family memory that you would always want to keep close?",
-    time: "8:42 PM",
-  },
-  {
-    id: 2,
-    sender: "user",
-    text: "I always remember the evenings when our whole family would sit together.",
-    time: "8:43 PM",
-  },
-  {
-    id: 3,
-    sender: "persona",
-    text: "Those simple moments often become the memories we value most. What do you remember most about those evenings?",
-    time: "8:43 PM",
-  },
-  {
-    id: 4,
-    sender: "user",
-    text: "Everyone would talk about their day, and we would spend time together without worrying about anything else.",
-    time: "8:45 PM",
-  },
-];
 
 function SessionConversationPage() {
   const navigate = useNavigate();
@@ -61,114 +33,159 @@ function SessionConversationPage() {
 
   const [session, setSession] = useState<SessionRecord | null>(null);
 
-  const [sessionLoading, setSessionLoading] = useState(true);
+  const [messages, setMessages] = useState<SessionMessage[]>([]);
 
-  const [sessionError, setSessionError] = useState<string | null>(null);
-
-  const [messages, setMessages] =
-    useState<ConversationMessage[]>(initialMessages);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [ending, setEnding] = useState(false);
 
   const [message, setMessage] = useState("");
-
-  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   /* =========================================================
-     LOAD REAL S2 SESSION
+     LOAD SESSION + HISTORY
   ========================================================= */
 
   useEffect(() => {
     if (!sessionId) {
-      setSessionError("Session ID is missing.");
-      setSessionLoading(false);
+      setError("Session ID is missing.");
+      setLoading(false);
       return;
     }
 
     let active = true;
 
-    async function loadSession() {
-      setSessionLoading(true);
-      setSessionError(null);
+    async function loadConversation() {
+      setLoading(true);
+      setError("");
 
       try {
-        const result = await getSession(sessionId);
+        const [sessionData, messageData] = await Promise.all([
+          getSession(sessionId),
+          getSessionMessages(sessionId),
+        ]);
 
-        if (active) {
-          setSession(result);
+        if (!active) {
+          return;
         }
+
+        setSession(sessionData);
+        setMessages(messageData);
       } catch (error) {
-        console.error("Failed to load session:", error);
+        console.error("Failed to load session conversation:", error);
 
         if (active) {
-          setSessionError(
-            error instanceof Error ? error.message : "Unable to load session.",
-          );
+          setError("Unable to load this conversation.");
         }
       } finally {
         if (active) {
-          setSessionLoading(false);
+          setLoading(false);
         }
       }
     }
 
-    void loadSession();
+    void loadConversation();
 
     return () => {
       active = false;
     };
   }, [sessionId]);
+
   /* =========================================================
      SEND MESSAGE
-     
-     S2 currently does not expose a message endpoint.
-     Therefore this keeps the existing temporary frontend
-     conversation behavior for now.
   ========================================================= */
 
-  const handleSend = () => {
-    const trimmedMessage = message.trim();
+  const handleSend = async () => {
+    const trimmed = message.trim();
 
-    if (!trimmedMessage || sending) {
+    if (!sessionId || !trimmed || sending) {
       return;
     }
 
-    const newMessage: ConversationMessage = {
-      id: Date.now(),
-      sender: "user",
-      text: trimmedMessage,
-      time: "Now",
-    };
-
-    setMessages((current) => [...current, newMessage]);
-
-    setMessage("");
+    if (session?.status !== "ACTIVE") {
+      return;
+    }
 
     setSending(true);
+    setError("");
 
-    window.setTimeout(() => {
-      const response: ConversationMessage = {
-        id: Date.now() + 1,
-        sender: "persona",
-        text: "Thank you for sharing that memory. Your preserved family stories help keep these meaningful moments connected.",
-        time: "Now",
-      };
+    try {
+      const response = await sendSessionMessage(sessionId, {
+        message: trimmed,
+      });
 
-      setMessages((current) => [...current, response]);
+      setMessage("");
 
+      /*
+       * If backend returns the created assistant/user message,
+       * append it to the UI.
+       *
+       * Otherwise reload history from the backend.
+       */
+
+      if ("role" in response && "content" in response) {
+        setMessages((current) => [...current, response]);
+      } else if (response.message) {
+        setMessages((current) => [...current, response.message!]);
+      } else if (response.data) {
+        setMessages((current) => [...current, response.data!]);
+      } else {
+        const refreshedMessages = await getSessionMessages(sessionId);
+
+        setMessages(refreshedMessages);
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+
+      setError("Unable to send your message. Please try again.");
+    } finally {
       setSending(false);
-    }, 700);
+    }
+  };
+
+  /* =========================================================
+     END SESSION
+  ========================================================= */
+
+  const handleEndSession = async () => {
+    if (!sessionId || ending) {
+      return;
+    }
+
+    setEnding(true);
+    setError("");
+
+    try {
+      const updatedSession = await endSession(sessionId);
+
+      setSession((current) =>
+        current
+          ? {
+              ...current,
+              ...updatedSession,
+              status: "ENDED",
+            }
+          : current,
+      );
+    } catch (error) {
+      console.error("Failed to end session:", error);
+
+      setError("Unable to end the session. Please try again.");
+    } finally {
+      setEnding(false);
+    }
   };
 
   /* =========================================================
      LOADING
   ========================================================= */
 
-  if (sessionLoading) {
+  if (loading) {
     return (
       <main className="session-conversation-page">
         <div className="session-conversation-loading">
-          <h2>Loading session...</h2>
-
-          <p>Preparing your conversation.</p>
+          <h2>Loading conversation...</h2>
+          <p>Preparing your session.</p>
         </div>
       </main>
     );
@@ -178,60 +195,34 @@ function SessionConversationPage() {
      ERROR
   ========================================================= */
 
-  if (sessionError || !session) {
+  if (!session || (error && !session)) {
     return (
       <main className="session-conversation-page">
         <div className="session-conversation-loading">
-          <h2>Unable to load session</h2>
+          <h2>Unable to load conversation</h2>
 
-          <p>{sessionError || "Session could not be found."}</p>
+          <p>{error || "Session could not be found."}</p>
 
-          <Button variant="outline" onClick={() => navigate("/app/persona")}>
-            Back to Persona
+          <Button variant="outline" onClick={() => navigate("/app/sessions")}>
+            Back to Sessions
           </Button>
         </div>
       </main>
     );
   }
 
-  /* =========================================================
-     DERIVED SESSION DATA
-  ========================================================= */
-
-  const sessionStatus = session.status;
-
-  const statusLabel =
-    sessionStatus === "ACTIVE"
-      ? "Active"
-      : sessionStatus === "ENDED"
-        ? "Ended"
-        : "Expired";
-
-  const statusVariant = sessionStatus === "ACTIVE" ? "success" : "neutral";
-
-  const sessionDate = new Date(session.createdAt).toLocaleDateString("en-US", {
+  const sessionDate = new Date(session.createdAt).toLocaleDateString("en-IN", {
+    day: "2-digit",
     month: "short",
-    day: "numeric",
     year: "numeric",
   });
 
-  const personaLabel =
-    session.personaId === "family-persona"
-      ? "Family Memory Persona"
-      : session.personaId;
+  const personaLabel = session.personaId;
 
   const modeLabel = session.mode.replaceAll("_", " ");
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
-
   return (
     <main className="session-conversation-page">
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
-
       <header className="session-conversation-header">
         <div className="session-conversation-heading">
           <button
@@ -240,7 +231,6 @@ function SessionConversationPage() {
             onClick={() => navigate(`/app/sessions/${sessionId}`)}
           >
             <ArrowLeft size={15} />
-
             <span>Back to session</span>
           </button>
 
@@ -253,8 +243,11 @@ function SessionConversationPage() {
               <div className="session-title-line">
                 <h1>{personaLabel}</h1>
 
-                <Badge variant={statusVariant} dot>
-                  {statusLabel}
+                <Badge
+                  variant={session.status === "ACTIVE" ? "success" : "neutral"}
+                  dot
+                >
+                  {session.status}
                 </Badge>
               </div>
 
@@ -274,15 +267,7 @@ function SessionConversationPage() {
         </button>
       </header>
 
-      {/* =====================================================
-          MAIN CONTENT
-      ===================================================== */}
-
       <div className="session-conversation-layout">
-        {/* ===================================================
-            CHAT
-        =================================================== */}
-
         <section className="session-conversation-card">
           <div className="session-conversation-card-header">
             <div className="session-chat-persona">
@@ -292,7 +277,6 @@ function SessionConversationPage() {
 
               <div>
                 <strong>{personaLabel}</strong>
-
                 <span>Session {session.sessionId}</span>
               </div>
             </div>
@@ -300,72 +284,65 @@ function SessionConversationPage() {
             <div className="session-chat-status">
               <span />
 
-              {sessionStatus === "ACTIVE"
+              {session.status === "ACTIVE"
                 ? "Conversation active"
                 : "Conversation ended"}
             </div>
           </div>
-
-          {/* MESSAGES */}
 
           <div className="session-conversation-messages">
             <div className="session-date-divider">
               <span>{sessionDate}</span>
             </div>
 
-            {messages.map((item) => (
-              <div
-                key={item.id}
-                className={`session-message ${
-                  item.sender === "user"
-                    ? "session-message-user"
-                    : "session-message-persona"
-                }`}
-              >
-                {item.sender === "persona" && (
-                  <div className="session-message-avatar persona">
-                    <Bot size={14} />
+            {messages.map((item) => {
+              const isUser = item.role === "USER";
+
+              return (
+                <div
+                  key={item.id}
+                  className={`session-message ${
+                    isUser ? "session-message-user" : "session-message-persona"
+                  }`}
+                >
+                  {!isUser && (
+                    <div className="session-message-avatar persona">
+                      <Bot size={14} />
+                    </div>
+                  )}
+
+                  <div className="session-message-body">
+                    <div className="session-message-author">
+                      {isUser ? "You" : personaLabel}
+                    </div>
+
+                    <div className="session-message-bubble">{item.content}</div>
+
+                    <span className="session-message-time">
+                      {item.createdAt
+                        ? new Date(item.createdAt).toLocaleTimeString("en-IN", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })
+                        : ""}
+                    </span>
                   </div>
-                )}
 
-                <div className="session-message-body">
-                  <div className="session-message-author">
-                    {item.sender === "user" ? "You" : personaLabel}
-                  </div>
-
-                  <div className="session-message-bubble">{item.text}</div>
-
-                  <span className="session-message-time">{item.time}</span>
+                  {isUser && (
+                    <div className="session-message-avatar user">
+                      <User size={14} />
+                    </div>
+                  )}
                 </div>
-
-                {item.sender === "user" && (
-                  <div className="session-message-avatar user">
-                    <User size={14} />
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {sending && (
-              <div className="session-message session-message-persona">
-                <div className="session-message-avatar persona">
-                  <Bot size={14} />
-                </div>
-
-                <div className="session-message-body">
-                  <div className="session-message-author">{personaLabel}</div>
-
-                  <div className="session-typing">
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                </div>
-              </div>
-            )}
+              );
+            })}
           </div>
 
-          {/* COMPOSER */}
+          {error && (
+            <div className="mx-4 mb-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
           <div className="session-conversation-composer">
             <div className="session-readonly-note">
@@ -378,40 +355,45 @@ function SessionConversationPage() {
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleSend();
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    void handleSend();
                   }
                 }}
                 placeholder="Continue this conversation..."
-                disabled={sending || sessionStatus !== "ACTIVE"}
+                disabled={sending || session.status !== "ACTIVE"}
               />
 
               <button
                 type="button"
                 className="session-send-button"
-                onClick={handleSend}
+                onClick={() => void handleSend()}
                 disabled={
-                  !message.trim() || sending || sessionStatus !== "ACTIVE"
+                  !message.trim() || sending || session.status !== "ACTIVE"
                 }
                 aria-label="Send message"
               >
                 <Send size={15} />
               </button>
             </div>
+
+            {session.status === "ACTIVE" && (
+              <button
+                type="button"
+                onClick={() => void handleEndSession()}
+                disabled={ending}
+                className="mt-3 text-xs text-slate-500 hover:text-red-600"
+              >
+                {ending ? "Ending session..." : "End session"}
+              </button>
+            )}
           </div>
         </section>
 
-        {/* ===================================================
-            SIDEBAR
-        =================================================== */}
-
         <aside className="session-conversation-sidebar">
-          {/* SESSION DETAILS */}
-
           <div className="session-side-card">
             <div className="session-side-title">
               <h2>Session details</h2>
-
               <p>Information about this conversation.</p>
             </div>
 
@@ -431,7 +413,7 @@ function SessionConversationPage() {
                   Status
                 </span>
 
-                <strong>{statusLabel}</strong>
+                <strong>{session.status}</strong>
               </div>
 
               <div>
@@ -445,12 +427,9 @@ function SessionConversationPage() {
             </div>
           </div>
 
-          {/* PERSONA */}
-
           <div className="session-side-card">
             <div className="session-side-title">
               <h2>Persona</h2>
-
               <p>Persona used in this session.</p>
             </div>
 
@@ -474,8 +453,6 @@ function SessionConversationPage() {
                 : "Session is no longer active"}
             </div>
           </div>
-
-          {/* ACTIONS */}
 
           <div className="session-side-actions">
             <Button

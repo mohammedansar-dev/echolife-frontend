@@ -12,7 +12,6 @@ import {
 
 import { QRCodeSVG } from "qrcode.react";
 
-import AuthLayout from "../components/AuthLayout";
 import Button from "../../../components/ui/Button";
 
 import { useAuth } from "../AuthContext";

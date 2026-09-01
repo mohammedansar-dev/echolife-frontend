@@ -6,10 +6,17 @@ export interface FamilyMember {
 }
 
 export interface PersonaData {
+  id?: string;
   name: string;
   relationship: string;
   language: string;
   tone: string;
+}
+
+export interface ConsentState {
+  terms: boolean;
+  memoryProcessing: boolean;
+  aiInteraction: boolean;
 }
 
 export interface OnboardingData {
@@ -20,9 +27,7 @@ export interface OnboardingData {
 
   persona: PersonaData;
 
-  consentTerms: boolean;
-  consentMemoryProcessing: boolean;
-  consentAiInteraction: boolean;
+  consent: ConsentState;
 
   firstMemory?: {
     fileName: string;
@@ -32,18 +37,22 @@ export interface OnboardingData {
 
 export const initialOnboardingData: OnboardingData = {
   displayName: "",
+
   language: "English",
 
   familyMembers: [],
 
   persona: {
+    id: undefined,
     name: "",
     relationship: "",
     language: "English",
     tone: "Warm",
   },
 
-  consentTerms: false,
-  consentMemoryProcessing: false,
-  consentAiInteraction: false,
+  consent: {
+    terms: false,
+    memoryProcessing: false,
+    aiInteraction: false,
+  },
 };

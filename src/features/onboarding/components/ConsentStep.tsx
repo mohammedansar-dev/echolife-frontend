@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Check, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import type { OnboardingData } from "../onboarding.types";
+import { submitConsents } from "../../consent/consent.api";
 
 interface ConsentStepProps {
   data: OnboardingData;
@@ -10,14 +12,78 @@ interface ConsentStepProps {
 }
 
 function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
   const allRequiredAccepted =
-    data.consentTerms &&
-    data.consentMemoryProcessing &&
-    data.consentAiInteraction;
+    data.consent.terms &&
+    data.consent.memoryProcessing &&
+    data.consent.aiInteraction;
+
+  const updateConsent = (
+    field: keyof OnboardingData["consent"],
+    value: boolean,
+  ) => {
+    onChange({
+      consent: {
+        ...data.consent,
+        [field]: value,
+      },
+    });
+
+    setError("");
+  };
+
+  const handleContinue = async () => {
+    if (!allRequiredAccepted) {
+      return;
+    }
+
+    setError("");
+    setSaving(true);
+
+    try {
+      await submitConsents({
+        consents: [
+          {
+            type: "TERMS",
+            accepted: data.consent.terms,
+          },
+          {
+            type: "MEMORY_PROCESSING",
+            accepted: data.consent.memoryProcessing,
+          },
+          {
+            type: "AI_INTERACTION",
+            accepted: data.consent.aiInteraction,
+          },
+        ],
+      });
+
+      onNext();
+    } catch (error) {
+      console.error("Failed to save consent:", error);
+
+      const response = (
+        error as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        }
+      )?.response?.data;
+
+      setError(
+        response?.message || "Unable to save your consent. Please try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div>
-      {/* Header */}
       <div>
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
           <ShieldCheck size={21} />
@@ -37,7 +103,6 @@ function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
         </p>
       </div>
 
-      {/* Privacy summary */}
       <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <div className="flex gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
@@ -88,18 +153,12 @@ function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
         </div>
       </div>
 
-      {/* Consent options */}
       <div className="mt-6 space-y-3">
-        {/* Terms */}
         <label className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50">
           <input
             type="checkbox"
-            checked={data.consentTerms}
-            onChange={(event) =>
-              onChange({
-                consentTerms: event.target.checked,
-              })
-            }
+            checked={data.consent.terms}
+            onChange={(event) => updateConsent("terms", event.target.checked)}
             className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600"
           />
 
@@ -115,15 +174,12 @@ function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
           </div>
         </label>
 
-        {/* Memory processing */}
         <label className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50">
           <input
             type="checkbox"
-            checked={data.consentMemoryProcessing}
+            checked={data.consent.memoryProcessing}
             onChange={(event) =>
-              onChange({
-                consentMemoryProcessing: event.target.checked,
-              })
+              updateConsent("memoryProcessing", event.target.checked)
             }
             className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600"
           />
@@ -140,15 +196,12 @@ function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
           </div>
         </label>
 
-        {/* AI */}
         <label className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50">
           <input
             type="checkbox"
-            checked={data.consentAiInteraction}
+            checked={data.consent.aiInteraction}
             onChange={(event) =>
-              onChange({
-                consentAiInteraction: event.target.checked,
-              })
+              updateConsent("aiInteraction", event.target.checked)
             }
             className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600"
           />
@@ -167,7 +220,12 @@ function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
         </label>
       </div>
 
-      {/* Status */}
+      {error && (
+        <div className="mt-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-xs text-red-700">
+          {error}
+        </div>
+      )}
+
       <div
         className={`mt-5 flex items-center gap-2 rounded-xl px-4 py-3 text-xs font-medium ${
           allRequiredAccepted
@@ -182,23 +240,23 @@ function ConsentStep({ data, onChange, onNext, onBack }: ConsentStepProps) {
           : "Please review and accept all required items to continue."}
       </div>
 
-      {/* Navigation */}
       <div className="mt-8 flex items-center justify-between">
         <button
           type="button"
           onClick={onBack}
-          className="rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+          disabled={saving}
+          className="rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
         >
           Back
         </button>
 
         <button
           type="button"
-          disabled={!allRequiredAccepted}
-          onClick={onNext}
+          disabled={!allRequiredAccepted || saving}
+          onClick={handleContinue}
           className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Continue
+          {saving ? "Saving..." : "Continue"}
         </button>
       </div>
     </div>
