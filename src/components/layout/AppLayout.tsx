@@ -44,11 +44,7 @@ const navigation: NavigationItem[] = [
     path: "/app/sessions",
     icon: "◉",
   },
-  {
-    label: "Daily Prompt",
-    path: "/app/daily-prompt",
-    icon: "✎",
-  },
+
   {
     label: "Reports",
     path: "/app/reports",
@@ -379,10 +375,6 @@ function getPageTitle(pathname: string): string {
 
   if (pathname === "/app/sessions") {
     return "Sessions";
-  }
-
-  if (pathname.startsWith("/app/daily-prompt")) {
-    return "Daily Prompt";
   }
 
   if (pathname.startsWith("/app/ai-session")) {
