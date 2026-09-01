@@ -15,18 +15,30 @@ import {
 
 import type { AuthContextValue, LoginResponse, User } from "./auth.types";
 
+/* =========================================================
+   CONTEXT
+========================================================= */
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+/* =========================================================
+   STORAGE KEYS
+========================================================= */
 
 const AUTH_TOKEN_KEY = "echolife_auth_token";
 const AUTH_USER_KEY = "echolife_auth_user";
+
+/* =========================================================
+   PROVIDER PROPS
+========================================================= */
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 /* =========================================================
-   Convert backend /me response → frontend User
-   ========================================================= */
+   CONVERT BACKEND USER
+========================================================= */
 
 function convertCurrentUser(
   response: Awaited<ReturnType<typeof getCurrentUser>>,
@@ -37,16 +49,21 @@ function convertCurrentUser(
     displayName: response.name,
     role: response.role,
     status: response.active ? "active" : "inactive",
-    mfaVerified: response.mfaVerified,
-    active: response.active,
+    mfaVerified: Boolean(response.mfaVerified),
+    active: Boolean(response.active),
+    tokenExpiresAt: response.tokenExpiresAt,
   };
 }
 
 /* =========================================================
-   Provider
-   ========================================================= */
+   AUTH PROVIDER
+========================================================= */
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  /* =======================================================
+     INITIAL USER
+  ======================================================= */
+
   const [user, setUser] = useState<User | null>(() => {
     try {
       const storedUser = localStorage.getItem(AUTH_USER_KEY);
@@ -62,34 +79,75 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   });
 
+  /* =======================================================
+     LOADING
+  ======================================================= */
+
   const [isLoading, setIsLoading] = useState(true);
 
   /* =======================================================
-     RESTORE AUTHENTICATION ON APPLICATION STARTUP
-     ======================================================= */
+     SAVE USER
+  ======================================================= */
+
+  const saveUser = (nextUser: User) => {
+    setUser(nextUser);
+
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
+  };
+
+  /* =======================================================
+     CLEAR SESSION
+  ======================================================= */
+
+  const clearSession = () => {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+
+    setUser(null);
+  };
+
+  /* =======================================================
+     REFRESH CURRENT USER
+  ======================================================= */
+
+  const refreshCurrentUser = async (): Promise<User> => {
+    const response = await getCurrentUser();
+
+    const convertedUser = convertCurrentUser(response);
+
+    saveUser(convertedUser);
+
+    return convertedUser;
+  };
+
+  /* =======================================================
+     RESTORE SESSION
+  ======================================================= */
 
   useEffect(() => {
     const restoreSession = async () => {
       const token = localStorage.getItem(AUTH_TOKEN_KEY);
 
+      /*
+       * No JWT means the user is logged out.
+       */
       if (!token) {
+        setUser(null);
         setIsLoading(false);
         return;
       }
 
       try {
-        const currentUser = await getCurrentUser();
+        /*
+         * Validate the stored JWT through /me.
+         *
+         * This also retrieves the latest MFA status.
+         */
+        await refreshCurrentUser();
+      } catch (error) {
+        console.error("EchoLife session restoration failed:", error);
 
-        const convertedUser = convertCurrentUser(currentUser);
-
-        setUser(convertedUser);
-
-        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(convertedUser));
-      } catch {
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        localStorage.removeItem(AUTH_USER_KEY);
-
-        setUser(null);
+        clearSession();
       } finally {
         setIsLoading(false);
       }
@@ -99,8 +157,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   /* =======================================================
-     NORMAL LOGIN
-     ======================================================= */
+     LOGIN
+  ======================================================= */
 
   const login = async (
     email: string,
@@ -111,55 +169,62 @@ export function AuthProvider({ children }: AuthProviderProps) {
       password,
     });
 
-    /*
-     * MFA required.
-     *
-     * Do NOT authenticate the user yet.
-     * LoginPage will redirect to /mfa.
-     */
+    /* =====================================================
+       MFA REQUIRED
+       
+       IMPORTANT:
+       
+       Do NOT create an authenticated session here.
+       
+       LoginPage should redirect to /mfa using the
+       temporary mfaToken returned by the backend.
+    ===================================================== */
+
     if (response.mfaRequired) {
       return response;
     }
+
+    /* =====================================================
+       NORMAL LOGIN WITHOUT MFA
+    ===================================================== */
 
     if (!response.accessToken) {
       throw new Error("The backend did not return an access token.");
     }
 
     /*
-     * Store JWT.
+     * Store JWT only after successful authentication.
      */
     localStorage.setItem(AUTH_TOKEN_KEY, response.accessToken);
 
     /*
-     * Fetch authoritative user.
+     * Get authoritative user information.
      */
-    const currentUser = await getCurrentUser();
-
-    const loggedInUser = convertCurrentUser(currentUser);
-
-    setUser(loggedInUser);
-
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(loggedInUser));
+    await refreshCurrentUser();
 
     return response;
   };
 
   /* =======================================================
-     MFA LOGIN
-     ======================================================= */
+     COMPLETE MFA LOGIN
+     
+     Login
+       ↓
+     mfaToken
+       ↓
+     verification code
+       ↓
+     final JWT
+  ======================================================= */
 
   const completeMfaLogin = async (
     mfaToken: string,
     code: string,
   ): Promise<LoginResponse> => {
-    /*
-     * Verify the temporary MFA challenge.
-     */
     const response = await verifyMfa(mfaToken, code);
 
     /*
-     * MFA verification must return
-     * the final access token.
+     * MFA verification must return the final JWT.
      */
     if (!response.accessToken) {
       throw new Error(
@@ -168,52 +233,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     /*
-     * Store final JWT.
+     * Store final authenticated JWT.
      */
     localStorage.setItem(AUTH_TOKEN_KEY, response.accessToken);
 
     /*
-     * Get authoritative user information.
-     */
-    const currentUser = await getCurrentUser();
-
-    const loggedInUser = convertCurrentUser(currentUser);
-
-    /*
-     * THIS IS THE IMPORTANT PART.
+     * Get the authoritative authenticated user.
      *
-     * ProtectedRoute uses AuthContext.user.
+     * This should now contain:
+     *
+     * mfaVerified: true
      */
-    setUser(loggedInUser);
-
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(loggedInUser));
+    await refreshCurrentUser();
 
     return response;
   };
 
   /* =======================================================
      LOGOUT
-     ======================================================= */
+  ======================================================= */
 
   const logout = async () => {
     try {
       await logoutApi();
-    } catch {
+    } catch (error) {
       /*
        * Even if backend logout fails,
-       * local authentication must be cleared.
+       * local authentication must be removed.
        */
+      console.warn("EchoLife logout request failed:", error);
     } finally {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_KEY);
-
-      setUser(null);
+      clearSession();
     }
   };
 
   /* =======================================================
      CONTEXT VALUE
-     ======================================================= */
+  ======================================================= */
 
   const value: AuthContextValue = {
     user,
@@ -226,17 +282,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     completeMfaLogin,
 
+    refreshCurrentUser,
+
     logout,
   };
+
+  /* =======================================================
+     PROVIDER
+  ======================================================= */
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 /* =========================================================
-   HOOK
-   ========================================================= */
+   useAuth
+========================================================= */
 
-export function useAuth() {
+export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
 
   if (!context) {

@@ -33,15 +33,11 @@ export interface PersonaMessage {
 
 interface PersonaContextValue {
   configuration: PersonaConfiguration | null;
-
   messages: PersonaMessage[];
 
   hydrated: boolean;
-
   loading: boolean;
-
   saving: boolean;
-
   sending: boolean;
 
   error: string | null;
@@ -53,7 +49,6 @@ interface PersonaContextValue {
   sendMessage: (message: string) => Promise<void>;
 
   clearMessages: () => void;
-
   clearError: () => void;
 }
 
@@ -76,17 +71,14 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<PersonaMessage[]>([]);
 
   const [hydrated, setHydrated] = useState(false);
-
   const [loading, setLoading] = useState(false);
-
   const [saving, setSaving] = useState(false);
-
   const [sending, setSending] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
   /* =======================================================
-     LOAD
+     LOAD PERSONA
   ======================================================= */
 
   useEffect(() => {
@@ -108,13 +100,19 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         } else {
           setConfiguration(null);
         }
-      } catch (err) {
-        console.error("Failed to load Persona:", err);
+      } catch (error) {
+        /*
+         * Do not break the complete application if the Persona
+         * service is temporarily unavailable.
+         *
+         * The real configuration will load automatically once
+         * the backend service is available.
+         */
+        console.warn("Persona service is currently unavailable.", error);
 
         if (active) {
-          setError(
-            err instanceof Error ? err.message : "Unable to load Persona.",
-          );
+          setConfiguration(null);
+          setError(null);
         }
       } finally {
         if (active) {
@@ -132,7 +130,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /* =======================================================
-     SAVE
+     SAVE PERSONA CONFIGURATION
   ======================================================= */
 
   const saveConfiguration = useCallback(
@@ -150,15 +148,15 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         }
 
         setConfiguration(response.data ?? newConfiguration);
-      } catch (err) {
+      } catch (error) {
         const message =
-          err instanceof Error
-            ? err.message
+          error instanceof Error
+            ? error.message
             : "Unable to save Persona configuration.";
 
         setError(message);
 
-        throw err;
+        throw error;
       } finally {
         setSaving(false);
       }
@@ -167,7 +165,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   );
 
   /* =======================================================
-     RESET
+     RESET PERSONA
   ======================================================= */
 
   const resetConfiguration = useCallback(async () => {
@@ -183,20 +181,20 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
       setConfiguration(null);
       setMessages([]);
-    } catch (err) {
+    } catch (error) {
       const message =
-        err instanceof Error ? err.message : "Unable to reset Persona.";
+        error instanceof Error ? error.message : "Unable to reset Persona.";
 
       setError(message);
 
-      throw err;
+      throw error;
     } finally {
       setLoading(false);
     }
   }, []);
 
   /* =======================================================
-     SEND MESSAGE
+     SEND PERSONA MESSAGE
   ======================================================= */
 
   const sendMessage = useCallback(
@@ -214,6 +212,10 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         setError(message);
 
         throw new Error(message);
+      }
+
+      if (sending) {
+        return;
       }
 
       setSending(true);
@@ -234,11 +236,8 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       try {
         const response = await sendPersonaMessage({
           message: trimmed,
-
           personaName: configuration.name,
-
           tone: configuration.tone,
-
           memoryIds: configuration.selectedMemoryIds,
         });
 
@@ -263,48 +262,56 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         };
 
         setMessages((current) => [...current, assistantMessage]);
-      } catch (err) {
+      } catch (error) {
         const message =
-          err instanceof Error ? err.message : "Unable to send message.";
+          error instanceof Error ? error.message : "Unable to send message.";
 
         setError(message);
 
-        throw err;
+        throw error;
       } finally {
         setSending(false);
       }
     },
-    [configuration],
+    [configuration, sending],
   );
 
   /* =======================================================
-     CLEAR
+     CLEAR MESSAGES
   ======================================================= */
 
   const clearMessages = useCallback(() => {
     setMessages([]);
   }, []);
 
+  /* =======================================================
+     CLEAR ERROR
+  ======================================================= */
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
   /* =======================================================
-     VALUE
+     CONTEXT VALUE
   ======================================================= */
 
-  const value = useMemo(
+  const value = useMemo<PersonaContextValue>(
     () => ({
       configuration,
       messages,
+
       hydrated,
       loading,
       saving,
       sending,
+
       error,
+
       saveConfiguration,
       resetConfiguration,
       sendMessage,
+
       clearMessages,
       clearError,
     }),
@@ -316,9 +323,11 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       saving,
       sending,
       error,
+
       saveConfiguration,
       resetConfiguration,
       sendMessage,
+
       clearMessages,
       clearError,
     ],
@@ -333,7 +342,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
    HOOK
 ========================================================= */
 
-export function usePersona() {
+export function usePersona(): PersonaContextValue {
   const context = useContext(PersonaContext);
 
   if (!context) {

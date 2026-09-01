@@ -3,12 +3,9 @@ import { useState } from "react";
 
 import { useAuth } from "../../features/auth/AuthContext";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import PersonaQuickSwitcher from "../../features/persona/PersonaQuickSwitcher";
 
 import "./AppLayout.css";
-
-/* =========================================================
-   TYPES
-========================================================= */
 
 interface NavigationItem {
   label: string;
@@ -16,65 +13,52 @@ interface NavigationItem {
   icon: string;
 }
 
-/* =========================================================
-   MAIN NAVIGATION
-========================================================= */
-
 const navigation: NavigationItem[] = [
   {
     label: "Dashboard",
     path: "/app/dashboard",
     icon: "⌂",
   },
-
   {
     label: "Memory Vault",
     path: "/app/vault",
     icon: "▣",
   },
-
   {
     label: "Time Capsules",
     path: "/app/time-capsule",
     icon: "◷",
   },
-
   {
     label: "Family",
     path: "/app/family",
     icon: "♧",
   },
-
   {
     label: "AI Persona",
     path: "/app/persona",
     icon: "✦",
   },
-
   {
     label: "Sessions",
     path: "/app/sessions",
     icon: "◉",
   },
-
   {
     label: "Daily Prompt",
     path: "/app/daily-prompt",
     icon: "✎",
   },
-
   {
     label: "Reports",
     path: "/app/reports",
     icon: "▤",
   },
-
   {
     label: "Legacy",
     path: "/app/legacy",
     icon: "♡",
   },
-
   {
     label: "Activity",
     path: "/app/activity",
@@ -82,29 +66,22 @@ const navigation: NavigationItem[] = [
   },
 ];
 
-/* =========================================================
-   ACCOUNT NAVIGATION
-========================================================= */
-
 const accountNavigation: NavigationItem[] = [
   {
     label: "Profile",
     path: "/app/profile",
-    icon: "○",
+    icon: "◯",
   },
-
   {
     label: "Settings",
     path: "/app/settings",
     icon: "⚙",
   },
-
   {
     label: "Security",
     path: "/app/security",
-    icon: "⌾",
+    icon: "◈",
   },
-
   {
     label: "Billing",
     path: "/app/billing",
@@ -112,19 +89,13 @@ const accountNavigation: NavigationItem[] = [
   },
 ];
 
-/* =========================================================
-   COMPONENT
-========================================================= */
-
 function AppLayout() {
   const location = useLocation();
-
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [profileOpen, setProfileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -139,9 +110,6 @@ function AppLayout() {
       });
     }
   };
-  /* =======================================================
-     ACTIVE NAVIGATION
-  ======================================================= */
 
   const isActive = (path: string) => {
     if (path === "/app/dashboard") {
@@ -153,27 +121,16 @@ function AppLayout() {
     );
   };
 
-  /* =======================================================
-     NAVIGATION
-  ======================================================= */
-
   const handleNavigate = (path: string) => {
     navigate(path);
 
     setSidebarOpen(false);
-
     setProfileOpen(false);
   };
 
-  /* =======================================================
-     RENDER
-  ======================================================= */
-
   return (
     <div className="app-shell">
-      {/* ===================================================
-          MOBILE OVERLAY
-      =================================================== */}
+      {/* MOBILE OVERLAY */}
 
       {sidebarOpen && (
         <button
@@ -184,15 +141,9 @@ function AppLayout() {
         />
       )}
 
-      {/* ===================================================
-          SIDEBAR
-      =================================================== */}
+      {/* SIDEBAR */}
 
       <aside className={`app-sidebar ${sidebarOpen ? "app-sidebar-open" : ""}`}>
-        {/* =================================================
-            BRAND
-        ================================================= */}
-
         <div className="app-sidebar-brand">
           <button
             type="button"
@@ -204,8 +155,6 @@ function AppLayout() {
             <span className="app-brand-text">EchoLife</span>
           </button>
 
-          {/* MOBILE CLOSE */}
-
           <button
             type="button"
             className="app-mobile-close"
@@ -216,9 +165,7 @@ function AppLayout() {
           </button>
         </div>
 
-        {/* =================================================
-            MAIN NAVIGATION
-        ================================================= */}
+        {/* MAIN NAVIGATION */}
 
         <nav className="app-navigation">
           <span className="app-nav-label">YOUR SPACE</span>
@@ -236,10 +183,6 @@ function AppLayout() {
             </button>
           ))}
 
-          {/* =================================================
-              ACCOUNT
-          ================================================= */}
-
           <span className="app-nav-label app-nav-account-label">ACCOUNT</span>
 
           {accountNavigation.map((item) => (
@@ -256,13 +199,9 @@ function AppLayout() {
           ))}
         </nav>
 
-        {/* =================================================
-            SIDEBAR FOOTER
-        ================================================= */}
+        {/* SIDEBAR FOOTER */}
 
         <div className="app-sidebar-footer">
-          {/* MEMORY SPACE */}
-
           <div className="app-storage">
             <div className="app-storage-top">
               <span>MEMORY SPACE</span>
@@ -281,8 +220,6 @@ function AppLayout() {
             <p>31 of 100 memories used</p>
           </div>
 
-          {/* SECURITY */}
-
           <div className="app-sidebar-security">
             <ShieldCheck size={13} />
 
@@ -295,19 +232,11 @@ function AppLayout() {
         </div>
       </aside>
 
-      {/* ===================================================
-          MAIN AREA
-      =================================================== */}
+      {/* MAIN */}
 
       <div className="app-main">
-        {/* =================================================
-            HEADER
-        ================================================= */}
-
         <header className="app-header">
           <div className="app-header-left">
-            {/* MOBILE MENU */}
-
             <button
               type="button"
               className="app-menu-button"
@@ -316,8 +245,6 @@ function AppLayout() {
             >
               <Menu size={19} />
             </button>
-
-            {/* BREADCRUMB */}
 
             <div className="app-breadcrumb">
               <span>EchoLife</span>
@@ -328,13 +255,7 @@ function AppLayout() {
             </div>
           </div>
 
-          {/* =================================================
-              HEADER RIGHT
-          ================================================= */}
-
           <div className="app-header-right">
-            {/* NOTIFICATIONS */}
-
             <button
               type="button"
               className="app-notification-button"
@@ -344,8 +265,6 @@ function AppLayout() {
 
               <span />
             </button>
-
-            {/* PROFILE */}
 
             <div className="app-profile-wrapper">
               <button
@@ -374,15 +293,12 @@ function AppLayout() {
                 />
               </button>
 
-              {/* PROFILE MENU */}
-
               {profileOpen && (
                 <div className="app-profile-menu">
                   <button
                     type="button"
                     onClick={() => {
                       setProfileOpen(false);
-
                       handleNavigate("/app/profile");
                     }}
                   >
@@ -393,7 +309,6 @@ function AppLayout() {
                     type="button"
                     onClick={() => {
                       setProfileOpen(false);
-
                       handleNavigate("/app/settings");
                     }}
                   >
@@ -408,6 +323,7 @@ function AppLayout() {
                     onClick={handleLogout}
                   >
                     <LogOut size={15} />
+
                     <span>Sign out</span>
                   </button>
                 </div>
@@ -416,21 +332,17 @@ function AppLayout() {
           </div>
         </header>
 
-        {/* =================================================
-            PAGE CONTENT
-        ================================================= */}
-
         <div className="app-content">
           <Outlet />
         </div>
+
+        {/* PERSONA QUICK SWITCHER */}
+
+        <PersonaQuickSwitcher />
       </div>
     </div>
   );
 }
-
-/* =========================================================
-   PAGE TITLE
-========================================================= */
 
 function getPageTitle(pathname: string): string {
   if (pathname === "/app/dashboard") {

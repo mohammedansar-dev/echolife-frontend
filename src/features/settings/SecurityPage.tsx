@@ -11,66 +11,135 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "../auth/AuthContext";
 
 import "./SecurityPage.css";
 
-interface Session {
-  id: number;
-  device: string;
-  location: string;
-  time: string;
-  current?: boolean;
-  icon: "laptop" | "phone";
-}
-
-const initialSessions: Session[] = [
-  {
-    id: 1,
-    device: "Windows desktop",
-    location: "Current device",
-    time: "Active now",
-    current: true,
-    icon: "laptop",
-  },
-  {
-    id: 2,
-    device: "Mobile device",
-    location: "Recently active",
-    time: "2 hours ago",
-    icon: "phone",
-  },
-];
-
 function SecurityPage() {
-  const [twoFactor, setTwoFactor] = useState(false);
+  const navigate = useNavigate();
 
-  const [sessions, setSessions] = useState<Session[]>(initialSessions);
+  const { user, isLoading } = useAuth();
 
   const [passwordUpdated, setPasswordUpdated] = useState(false);
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
+  /*
+   * IMPORTANT:
+   *
+   * MFA status MUST come from backend/auth state.
+   *
+   * Do NOT create:
+   *
+   * const [twoFactor, setTwoFactor] = useState(false);
+   *
+   * because MFA state belongs to the backend.
+   */
+  const twoFactorEnabled = Boolean(user?.mfaVerified);
+
+  /* =======================================================
+     PASSWORD
+  ======================================================= */
+
   const handlePasswordAction = () => {
-    setPasswordUpdated(true);
+    /*
+     * Keep your existing password flow.
+     *
+     * If you already have a change-password route,
+     * navigate to that route here.
+     */
 
-    window.setTimeout(() => {
-      setPasswordUpdated(false);
-    }, 1800);
+    navigate("/app/change-password");
   };
 
-  const logoutSession = (id: number) => {
-    setSessions((current) => current.filter((session) => session.id !== id));
+  /* =======================================================
+     MFA
+  ======================================================= */
+
+  const handleMfaSetup = () => {
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT generate the QR code here.
+     *
+     * Your MFA setup page/backend is responsible for:
+     *
+     * 1. Generating the MFA secret
+     * 2. Generating the QR code
+     * 3. Verifying the OTP
+     * 4. Persisting MFA status
+     * 5. Refreshing the authenticated user
+     *
+     * Security page only navigates there.
+     */
+
+    navigate("/app/mfa/setup");
   };
 
-  const logoutAllOtherSessions = () => {
-    setSessions((current) => current.filter((session) => session.current));
+  /* =======================================================
+     ACTIVE SESSIONS
+  ======================================================= */
 
-    setShowLogoutConfirm(false);
+  const handleSessions = () => {
+    /*
+     * Sessions must come from the backend.
+     *
+     * Do NOT maintain:
+     *
+     * const [sessions, setSessions] = useState(...)
+     *
+     * here.
+     *
+     * Open the existing sessions page where the real
+     * backend session data is loaded.
+     */
+
+    navigate("/app/sessions");
   };
+
+  /* =======================================================
+     RECENT ACTIVITY
+  ======================================================= */
+
+  const handleActivity = () => {
+    navigate("/app/security/activity");
+  };
+
+  /* =======================================================
+     RECOVERY
+  ======================================================= */
+
+  const handleRecovery = () => {
+    navigate("/app/security/recovery");
+  };
+
+  /* =======================================================
+     LOADING
+  ======================================================= */
+
+  if (isLoading) {
+    return (
+      <main className="security-page">
+        <div className="security-loading">
+          <div className="security-loading-spinner" />
+
+          <p>Loading security settings...</p>
+        </div>
+      </main>
+    );
+  }
+
+  /* =======================================================
+     PAGE
+  ======================================================= */
 
   return (
     <main className="security-page">
-      {/* HEADER */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <header className="security-header">
         <div>
@@ -95,7 +164,9 @@ function SecurityPage() {
         )}
       </header>
 
-      {/* SECURITY STATUS */}
+      {/* =================================================
+          SECURITY STATUS
+      ================================================= */}
 
       <section className="security-status">
         <div className="security-status-icon">
@@ -105,28 +176,55 @@ function SecurityPage() {
         <div className="security-status-content">
           <span>ACCOUNT SECURITY</span>
 
-          <strong>Your account is protected</strong>
+          <strong>
+            {twoFactorEnabled
+              ? "Your account is protected"
+              : "Complete your account protection"}
+          </strong>
 
           <p>
-            Keep your password secure and review your active sessions regularly.
+            {twoFactorEnabled
+              ? "Your account security settings are up to date."
+              : "Enable two-factor authentication for stronger protection."}
           </p>
         </div>
 
-        <div className="security-status-badge">
-          <Check size={10} />
-          Protected
+        <div
+          className={`security-status-badge ${
+            twoFactorEnabled ? "protected" : "attention"
+          }`}
+        >
+          {twoFactorEnabled ? (
+            <>
+              <Check size={10} />
+              Protected
+            </>
+          ) : (
+            <>
+              <span />
+              Action needed
+            </>
+          )}
         </div>
       </section>
 
-      {/* CONTENT */}
+      {/* =================================================
+          CONTENT
+      ================================================= */}
 
       <section className="security-layout">
+        {/* =================================================
+            MAIN
+        ================================================= */}
+
         <div className="security-main">
-          {/* PASSWORD */}
+          {/* =================================================
+              PASSWORD
+          ================================================= */}
 
           <section className="security-card">
             <div className="security-card-heading">
-              <div className="security-card-icon">
+              <div className="security-card-icon blue">
                 <KeyRound size={15} />
               </div>
 
@@ -145,7 +243,7 @@ function SecurityPage() {
 
                 <strong>••••••••••••••••</strong>
 
-                <small>Last updated recently</small>
+                <small>Your password is securely protected.</small>
               </div>
 
               <button type="button" onClick={handlePasswordAction}>
@@ -155,11 +253,13 @@ function SecurityPage() {
             </div>
           </section>
 
-          {/* TWO FACTOR */}
+          {/* =================================================
+              TWO FACTOR
+          ================================================= */}
 
           <section className="security-card">
             <div className="security-card-heading">
-              <div className="security-card-icon">
+              <div className="security-card-icon green">
                 <Smartphone size={15} />
               </div>
 
@@ -179,23 +279,38 @@ function SecurityPage() {
                 <strong>Two-factor authentication</strong>
 
                 <span>
-                  {twoFactor
+                  {twoFactorEnabled
                     ? "Additional verification is enabled."
                     : "Use a second step to protect your account."}
                 </span>
               </div>
 
-              <button
-                type="button"
-                className={`security-toggle ${twoFactor ? "on" : ""}`}
-                onClick={() => setTwoFactor((current) => !current)}
-                aria-label="Toggle two-factor authentication"
-              >
-                <span />
-              </button>
+              {!twoFactorEnabled ? (
+                <button
+                  type="button"
+                  className="security-mfa-button"
+                  onClick={handleMfaSetup}
+                >
+                  <ShieldCheck size={14} />
+
+                  <span>Set up MFA</span>
+
+                  <ChevronRight size={13} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="security-mfa-enabled"
+                  onClick={handleMfaSetup}
+                >
+                  <Check size={12} />
+                  Enabled
+                  <ChevronRight size={12} />
+                </button>
+              )}
             </div>
 
-            {twoFactor && (
+            {twoFactorEnabled && (
               <div className="security-enabled">
                 <Check size={13} />
 
@@ -203,18 +318,21 @@ function SecurityPage() {
                   <strong>Two-factor authentication enabled</strong>
 
                   <p>
-                    Your account now requires an additional verification step.
+                    Your account requires an additional verification step when
+                    signing in.
                   </p>
                 </div>
               </div>
             )}
           </section>
 
-          {/* ACTIVE SESSIONS */}
+          {/* =================================================
+              ACTIVE SESSIONS
+          ================================================= */}
 
           <section className="security-card">
             <div className="security-card-heading">
-              <div className="security-card-icon">
+              <div className="security-card-icon purple">
                 <Laptop size={15} />
               </div>
 
@@ -227,64 +345,91 @@ function SecurityPage() {
               </div>
             </div>
 
-            <div className="security-session-list">
-              {sessions.length === 0 ? (
-                <div className="security-empty">No active sessions found.</div>
-              ) : (
-                sessions.map((session) => (
-                  <div key={session.id} className="security-session">
-                    <div className="security-session-icon">
-                      {session.icon === "laptop" ? (
-                        <Laptop size={15} />
-                      ) : (
-                        <Smartphone size={15} />
-                      )}
-                    </div>
+            <button
+              type="button"
+              className="security-session-navigation"
+              onClick={handleSessions}
+            >
+              <div className="security-session-nav-icon">
+                <Laptop size={16} />
+              </div>
 
-                    <div className="security-session-info">
-                      <div className="security-session-title">
-                        <strong>{session.device}</strong>
+              <div>
+                <strong>Manage active sessions</strong>
 
-                        {session.current && <span>This device</span>}
-                      </div>
+                <span>View and sign out devices from your account.</span>
+              </div>
 
-                      <p>{session.location}</p>
+              <ChevronRight size={17} />
+            </button>
+          </section>
 
-                      <small>
-                        <Clock3 size={9} />
-                        {session.time}
-                      </small>
-                    </div>
+          {/* =================================================
+              RECENT ACTIVITY
+          ================================================= */}
 
-                    {!session.current && (
-                      <button
-                        type="button"
-                        onClick={() => logoutSession(session.id)}
-                      >
-                        <LogOut size={12} />
-                        Sign out
-                      </button>
-                    )}
-                  </div>
-                ))
-              )}
+          <section className="security-card">
+            <div className="security-card-heading">
+              <div className="security-card-icon orange">
+                <Clock3 size={15} />
+              </div>
+
+              <div>
+                <span>RECENT ACTIVITY</span>
+
+                <h2>Security activity</h2>
+
+                <p>Review recent security events on your account.</p>
+              </div>
             </div>
 
-            {sessions.some((session) => !session.current) && (
-              <button
-                type="button"
-                className="security-logout-all"
-                onClick={() => setShowLogoutConfirm(true)}
-              >
-                Sign out of all other devices
-              </button>
-            )}
+            <button
+              type="button"
+              className="security-simple-navigation"
+              onClick={handleActivity}
+            >
+              Review recent activity
+              <ChevronRight size={14} />
+            </button>
+          </section>
+
+          {/* =================================================
+              RECOVERY
+          ================================================= */}
+
+          <section className="security-card">
+            <div className="security-card-heading">
+              <div className="security-card-icon red">
+                <LockKeyhole size={15} />
+              </div>
+
+              <div>
+                <span>RECOVERY OPTIONS</span>
+
+                <h2>Account recovery</h2>
+
+                <p>Manage backup and account recovery options.</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="security-simple-navigation"
+              onClick={handleRecovery}
+            >
+              Manage recovery options
+              <ChevronRight size={14} />
+            </button>
           </section>
         </div>
 
-        {/* SIDEBAR */}
+        {/* =================================================
+            RIGHT SIDEBAR
+        ================================================= */}
 
         <aside className="security-sidebar">
+          {/* SECURITY CHECK */}
+
           <div className="security-side-card">
             <div className="security-side-heading">
               <LockKeyhole size={14} />
@@ -317,7 +462,7 @@ function SecurityPage() {
             </div>
 
             <div className="security-check">
-              {twoFactor ? (
+              {twoFactorEnabled ? (
                 <Check size={11} />
               ) : (
                 <span className="security-check-dot" />
@@ -326,10 +471,12 @@ function SecurityPage() {
               <div>
                 <strong>Two-factor authentication</strong>
 
-                <span>{twoFactor ? "Enabled" : "Not enabled"}</span>
+                <span>{twoFactorEnabled ? "Enabled" : "Not enabled"}</span>
               </div>
             </div>
           </div>
+
+          {/* SECURITY TIP */}
 
           <div className="security-side-card security-tip">
             <div className="security-tip-icon">
@@ -347,7 +494,9 @@ function SecurityPage() {
         </aside>
       </section>
 
-      {/* LOGOUT MODAL */}
+      {/* =================================================
+          LOGOUT CONFIRMATION
+      ================================================= */}
 
       {showLogoutConfirm && (
         <div
@@ -366,8 +515,8 @@ function SecurityPage() {
             <h2>Sign out other devices?</h2>
 
             <p>
-              This will sign your EchoLife account out of every other active
-              device. Your current device will remain signed in.
+              This action should be connected to the backend session-management
+              endpoint.
             </p>
 
             <div className="security-modal-actions">
@@ -375,8 +524,8 @@ function SecurityPage() {
                 Cancel
               </button>
 
-              <button type="button" onClick={logoutAllOtherSessions}>
-                Sign out devices
+              <button type="button" onClick={() => setShowLogoutConfirm(false)}>
+                Continue
               </button>
             </div>
           </div>

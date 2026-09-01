@@ -7,6 +7,10 @@ function ProtectedRoute() {
 
   const location = useLocation();
 
+  /* =======================================================
+     AUTHENTICATION STATE LOADING
+  ======================================================= */
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -19,6 +23,10 @@ function ProtectedRoute() {
     );
   }
 
+  /* =======================================================
+     NOT AUTHENTICATED
+  ======================================================= */
+
   if (!isAuthenticated) {
     return (
       <Navigate
@@ -30,6 +38,10 @@ function ProtectedRoute() {
       />
     );
   }
+
+  /* =======================================================
+     AUTHENTICATED
+  ======================================================= */
 
   return <Outlet />;
 }

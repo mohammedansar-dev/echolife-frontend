@@ -26,6 +26,25 @@ export interface PersonaConfigurationResponse {
 }
 
 /* =========================================================
+   PERSONA CONVERSATION
+========================================================= */
+
+export interface PersonaConversationRequest {
+  message: string;
+  personaName: string;
+  tone: string;
+  memoryIds: string[];
+}
+
+export interface PersonaConversationResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    response: string;
+  };
+}
+
+/* =========================================================
    PERSONA SESSION
 ========================================================= */
 
@@ -38,25 +57,18 @@ export interface PersonaSessionRequest {
 }
 
 /* =========================================================
-   LOCAL PERSONA STORAGE
-========================================================= */
-
-const PERSONA_STORAGE_KEY = "echolife_persona_configuration";
-
-/* =========================================================
    SAVE PERSONA
 ========================================================= */
 
 export async function savePersonaConfiguration(
   configuration: PersonaConfiguration,
 ): Promise<PersonaConfigurationResponse> {
-  localStorage.setItem(PERSONA_STORAGE_KEY, JSON.stringify(configuration));
+  const response = await api.post<PersonaConfigurationResponse>(
+    "/api/persona/configuration",
+    configuration,
+  );
 
-  return {
-    success: true,
-    message: "Persona configuration saved.",
-    data: configuration,
-  };
+  return response.data;
 }
 
 /* =========================================================
@@ -64,33 +76,11 @@ export async function savePersonaConfiguration(
 ========================================================= */
 
 export async function getPersonaConfiguration(): Promise<PersonaConfigurationResponse> {
-  const stored = localStorage.getItem(PERSONA_STORAGE_KEY);
+  const response = await api.get<PersonaConfigurationResponse>(
+    "/api/persona/configuration",
+  );
 
-  if (!stored) {
-    return {
-      success: true,
-      message: "No Persona configuration found.",
-      data: undefined,
-    };
-  }
-
-  try {
-    const configuration = JSON.parse(stored) as PersonaConfiguration;
-
-    return {
-      success: true,
-      message: "Persona configuration loaded.",
-      data: configuration,
-    };
-  } catch {
-    localStorage.removeItem(PERSONA_STORAGE_KEY);
-
-    return {
-      success: true,
-      message: "No valid Persona configuration found.",
-      data: undefined,
-    };
-  }
+  return response.data;
 }
 
 /* =========================================================
@@ -98,12 +88,26 @@ export async function getPersonaConfiguration(): Promise<PersonaConfigurationRes
 ========================================================= */
 
 export async function resetPersonaConfiguration(): Promise<PersonaConfigurationResponse> {
-  localStorage.removeItem(PERSONA_STORAGE_KEY);
+  const response = await api.delete<PersonaConfigurationResponse>(
+    "/api/persona/configuration",
+  );
 
-  return {
-    success: true,
-    message: "Persona configuration reset.",
-  };
+  return response.data;
+}
+
+/* =========================================================
+   SEND PERSONA MESSAGE
+========================================================= */
+
+export async function sendPersonaMessage(
+  request: PersonaConversationRequest,
+): Promise<PersonaConversationResponse> {
+  const response = await api.post<PersonaConversationResponse>(
+    "/api/persona/conversation",
+    request,
+  );
+
+  return response.data;
 }
 
 /* =========================================================

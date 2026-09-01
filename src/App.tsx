@@ -53,7 +53,6 @@ import { TimeCapsuleProvider } from "./features/vault/TimeCapsuleContext";
 import { FamilyProvider } from "./features/family/FamilyContext";
 
 import FamilyPage from "./features/family/pages/FamilyPage";
-
 import FamilyMemberDetailsPage from "./features/family/pages/FamilyMemberDetailsPage";
 import AddFamilyMemberPage from "./features/family/components/AddFamilyMemberPage";
 
@@ -159,13 +158,6 @@ function App() {
                   <Route element={<ProtectedRoute />}>
                     {/* ===================================================
                        APPLICATION LAYOUT
-
-                       EVERYTHING INSIDE THIS ROUTE GETS:
-
-                       - Sidebar
-                       - Header
-                       - AppLayout
-                       - Outlet
                     =================================================== */}
 
                     <Route path="/app" element={<AppLayout />}>

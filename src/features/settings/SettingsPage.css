@@ -889,3 +889,66 @@
     width: calc(100% - 37px);
   }
 }
+/* =========================================================
+   MFA SETUP BUTTON
+========================================================= */
+
+.security-mfa-button {
+  min-height: 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  flex: 0 0 auto;
+
+  padding: 0 11px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-family: inherit;
+  font-size: 6px;
+  font-weight: 750;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
+}
+
+.security-mfa-button:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+
+  box-shadow: 0 2px 7px rgba(37, 99, 235, 0.12);
+}
+
+.security-mfa-button:active {
+  transform: translateY(1px);
+}
+
+.security-mfa-button:focus-visible {
+  outline: none;
+
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.security-mfa-button svg {
+  flex: 0 0 auto;
+}

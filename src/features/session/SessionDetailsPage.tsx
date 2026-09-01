@@ -9,11 +9,15 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+
+import { getSession } from "../session/session.api";
+import type { SessionRecord } from "../session/session.types";
 
 import "./SessionDetailsPage.css";
 
@@ -21,21 +25,94 @@ function SessionDetailsPage() {
   const navigate = useNavigate();
   const { sessionId } = useParams();
 
-  const isFamilyMemorySession = sessionId === "session-1";
+  const [session, setSession] = useState<SessionRecord | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const sessionTitle = isFamilyMemorySession
-    ? "Family memories conversation"
-    : "Family conversation";
+  useEffect(() => {
+    if (!sessionId) {
+      setError("Session ID is missing.");
+      setLoading(false);
+      return;
+    }
 
-  const sessionDescription = isFamilyMemorySession
-    ? "A conversation about meaningful family memories and stories."
-    : "A preserved EchoLife family conversation.";
+    let cancelled = false;
+
+    async function loadSession() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getSession(sessionId);
+
+        if (!cancelled) {
+          setSession(data);
+        }
+      } catch (err) {
+        console.error("Failed to load session:", err);
+
+        if (!cancelled) {
+          setError("Unable to load this session.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
+  if (loading) {
+    return (
+      <main className="session-details-page">
+        <div className="session-details-loading">
+          <MessageCircle size={20} />
+          <p>Loading session...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !session) {
+    return (
+      <main className="session-details-page">
+        <div className="session-details-error">
+          <h1>Session unavailable</h1>
+          <p>{error || "The requested session could not be found."}</p>
+
+          <Button variant="primary" onClick={() => navigate("/app/sessions")}>
+            Back to Sessions
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  const createdDate = new Date(session.createdAt);
+
+  const formattedDate = createdDate.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+  const formattedTime = createdDate.toLocaleTimeString("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  const statusLabel =
+    session.status.charAt(0) + session.status.slice(1).toLowerCase();
 
   return (
     <main className="session-details-page">
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <header className="session-details-header">
         <div>
@@ -55,14 +132,26 @@ function SessionDetailsPage() {
 
             <div>
               <div className="session-details-title-row">
-                <h1>{sessionTitle}</h1>
+                <h1>Session {session.sessionId}</h1>
 
-                <Badge variant="success" dot>
-                  Completed
+                <Badge
+                  variant={
+                    session.status === "ACTIVE"
+                      ? "success"
+                      : session.status === "ENDED"
+                        ? "success"
+                        : "warning"
+                  }
+                  dot
+                >
+                  {statusLabel}
                 </Badge>
               </div>
 
-              <p>{sessionDescription}</p>
+              <p>
+                {session.mode} session using the{" "}
+                {session.inputChannel.toLowerCase()} input channel.
+              </p>
             </div>
           </div>
         </div>
@@ -76,9 +165,7 @@ function SessionDetailsPage() {
         </button>
       </header>
 
-      {/* =====================================================
-          SUMMARY
-      ===================================================== */}
+      {/* SUMMARY */}
 
       <section className="session-details-summary">
         <div className="session-summary-item">
@@ -88,8 +175,7 @@ function SessionDetailsPage() {
 
           <div>
             <span>Date</span>
-
-            <strong>Aug 22, 2026</strong>
+            <strong>{formattedDate}</strong>
           </div>
         </div>
 
@@ -99,9 +185,8 @@ function SessionDetailsPage() {
           </div>
 
           <div>
-            <span>Duration</span>
-
-            <strong>18 minutes</strong>
+            <span>Started</span>
+            <strong>{formattedTime}</strong>
           </div>
         </div>
 
@@ -111,9 +196,8 @@ function SessionDetailsPage() {
           </div>
 
           <div>
-            <span>Messages</span>
-
-            <strong>24 messages</strong>
+            <span>Mode</span>
+            <strong>{session.mode}</strong>
           </div>
         </div>
 
@@ -123,26 +207,19 @@ function SessionDetailsPage() {
           </div>
 
           <div>
-            <span>Persona</span>
-
-            <strong>Family Memory</strong>
+            <span>Output</span>
+            <strong>{session.outputChannel}</strong>
           </div>
         </div>
       </section>
 
-      {/* =====================================================
-          CONTENT
-      ===================================================== */}
+      {/* CONTENT */}
 
       <div className="session-details-layout">
-        {/* ===================================================
-            MAIN CARD
-        =================================================== */}
-
         <section className="session-details-main">
           <Card
-            title="Conversation overview"
-            description="A summary of this preserved family conversation."
+            title="Session overview"
+            description="Details returned by the EchoLife Session Orchestrator."
           >
             <div className="session-overview">
               <div className="session-overview-hero">
@@ -151,11 +228,11 @@ function SessionDetailsPage() {
                 </div>
 
                 <div>
-                  <h2>Family memories</h2>
+                  <h2>{session.mode} session</h2>
 
                   <p>
-                    This session explored meaningful memories, family stories,
-                    and moments worth preserving.
+                    This session is associated with persona{" "}
+                    <strong>{session.personaId}</strong>.
                   </p>
                 </div>
               </div>
@@ -169,10 +246,11 @@ function SessionDetailsPage() {
                   </div>
 
                   <div>
-                    <strong>Preserved conversation</strong>
+                    <strong>Session status</strong>
 
                     <span>
-                      This session is safely stored in your EchoLife account.
+                      The backend currently reports this session as{" "}
+                      {statusLabel}.
                     </span>
                   </div>
                 </div>
@@ -183,127 +261,93 @@ function SessionDetailsPage() {
                   </div>
 
                   <div>
-                    <strong>Family Persona</strong>
+                    <strong>Persona</strong>
 
-                    <span>
-                      The conversation used your configured family Persona.
-                    </span>
+                    <span>{session.personaId}</span>
                   </div>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* RECENT MESSAGES */}
-
           <Card
-            title="Conversation preview"
-            description="A preview of the messages from this session."
-            action={
-              <button
-                type="button"
-                className="session-preview-link"
-                onClick={() =>
-                  navigate(`/app/sessions/${sessionId}/conversation`)
-                }
-              >
-                View full conversation
-                <ArrowRight size={13} />
-              </button>
-            }
+            title="Session configuration"
+            description="Configuration captured when the session was created."
           >
-            <div className="session-message-preview">
-              <div className="session-preview-message">
-                <div className="session-preview-avatar persona">
-                  <Sparkles size={13} />
-                </div>
-
-                <div>
-                  <span>Family Persona</span>
-
-                  <p>
-                    What is one family memory that you would always want to keep
-                    close?
-                  </p>
-                </div>
+            <div className="session-info-list">
+              <div>
+                <span>Input channel</span>
+                <strong>{session.inputChannel}</strong>
               </div>
 
-              <div className="session-preview-message user">
-                <div className="session-preview-avatar user">
-                  <User size={13} />
-                </div>
-
-                <div>
-                  <span>You</span>
-
-                  <p>
-                    I always remember the evenings when our whole family would
-                    sit together.
-                  </p>
-                </div>
+              <div>
+                <span>Output channel</span>
+                <strong>{session.outputChannel}</strong>
               </div>
 
-              <div className="session-preview-message">
-                <div className="session-preview-avatar persona">
-                  <Sparkles size={13} />
-                </div>
+              <div>
+                <span>Client type</span>
+                <strong>{session.clientType}</strong>
+              </div>
 
-                <div>
-                  <span>Family Persona</span>
-
-                  <p>
-                    Those simple moments often become the memories we value
-                    most.
-                  </p>
-                </div>
+              <div>
+                <span>Policy version</span>
+                <strong>{session.policyVersion}</strong>
               </div>
             </div>
           </Card>
         </section>
 
-        {/* ===================================================
-            SIDEBAR
-        =================================================== */}
+        {/* SIDEBAR */}
 
         <aside className="session-details-sidebar">
           <Card
             title="Session information"
-            description="Details about this conversation."
+            description="Details from the Session Orchestrator."
           >
             <div className="session-info-list">
               <div>
                 <span>Session ID</span>
+                <strong>{session.sessionId}</strong>
+              </div>
 
-                <strong>{sessionId}</strong>
+              <div>
+                <span>User ID</span>
+                <strong>{session.userId}</strong>
               </div>
 
               <div>
                 <span>Status</span>
 
-                <Badge variant="success" dot>
-                  Completed
+                <Badge
+                  variant={
+                    session.status === "ACTIVE"
+                      ? "success"
+                      : session.status === "ENDED"
+                        ? "success"
+                        : "warning"
+                  }
+                  dot
+                >
+                  {statusLabel}
                 </Badge>
               </div>
 
               <div>
-                <span>Started</span>
-
-                <strong>8:42 PM</strong>
+                <span>Created</span>
+                <strong>{formattedDate}</strong>
               </div>
 
               <div>
-                <span>Duration</span>
-
-                <strong>18 minutes</strong>
+                <span>Policy version</span>
+                <strong>{session.policyVersion}</strong>
               </div>
             </div>
           </Card>
 
-          {/* PERSONA CARD */}
-
           <Card
             title="Persona used"
-            description="The Persona that participated in this conversation."
+            description="The Persona associated with this session."
           >
             <div className="session-persona-card">
               <div className="session-persona-avatar">
@@ -311,20 +355,16 @@ function SessionDetailsPage() {
               </div>
 
               <div>
-                <h3>Family Memory Persona</h3>
-
-                <p>Warm & caring</p>
+                <h3>{session.personaId}</h3>
+                <p>{session.mode}</p>
               </div>
             </div>
 
             <div className="session-persona-status">
               <CheckCircle2 size={14} />
-
-              <span>Approved memories enabled</span>
+              <span>Session configuration loaded</span>
             </div>
           </Card>
-
-          {/* ACTION */}
 
           <div className="session-open-action">
             <Button
@@ -332,13 +372,16 @@ function SessionDetailsPage() {
               size="large"
               icon={<MessageCircle size={16} />}
               onClick={() =>
-                navigate(`/app/sessions/${sessionId}/conversation`)
+                navigate(`/app/sessions/${session.sessionId}/conversation`)
               }
             >
               Open conversation
             </Button>
 
-            <p>Continue viewing this preserved conversation.</p>
+            <p>
+              Conversation content is not currently provided by the Session
+              Orchestrator API.
+            </p>
           </div>
         </aside>
       </div>

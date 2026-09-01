@@ -101,7 +101,10 @@ function PersonaPage() {
             memories from your private Memory Vault.
           </p>
 
-          <button type="button" onClick={handleStartConversation}>
+          <button
+            type="button"
+            onClick={() => navigate("/app/persona/configure")}
+          >
             <Sparkles size={16} />
             Create Persona
           </button>

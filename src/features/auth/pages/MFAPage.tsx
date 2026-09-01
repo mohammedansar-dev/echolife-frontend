@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  LockKeyhole,
+  ShieldCheck,
+  Smartphone,
+} from "lucide-react";
 
 import AuthLayout from "../components/AuthLayout";
 import Button from "../../../components/ui/Button";
 
 import { useAuth } from "../AuthContext";
+
+import "./MFAPage.css";
 
 interface MFAState {
   email?: string;
@@ -26,7 +35,9 @@ function MFAPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!/^\d{6}$/.test(code)) {
+    const trimmedCode = code.trim();
+
+    if (!/^\d{6}$/.test(trimmedCode)) {
       setError("Enter the 6-digit verification code.");
       return;
     }
@@ -40,18 +51,8 @@ function MFAPage() {
     setIsSubmitting(true);
 
     try {
-      /*
-       * This performs:
-       *
-       * POST /api/v1/auth/mfa/verify
-       *
-       * and then updates AuthContext.user.
-       */
-      await completeMfaLogin(state.mfaToken, code);
+      await completeMfaLogin(state.mfaToken, trimmedCode);
 
-      /*
-       * AuthContext is now authenticated.
-       */
       navigate("/app/dashboard", {
         replace: true,
       });
@@ -79,56 +80,169 @@ function MFAPage() {
     }
   };
 
+  /*
+   * Missing MFA session
+   */
+
+  if (!state?.mfaToken) {
+    return (
+      <main className="mfa-page">
+        <div className="mfa-shell">
+          <section className="mfa-card mfa-error-card">
+            <div className="mfa-brand-mark">
+              <ShieldCheck size={22} />
+            </div>
+
+            <span className="mfa-eyebrow">ACCOUNT SECURITY</span>
+
+            <h1>MFA verification unavailable</h1>
+
+            <p className="mfa-description">
+              Your verification session is missing or has expired. Please sign
+              in again to continue.
+            </p>
+
+            <div className="mfa-error-box">
+              <LockKeyhole size={16} />
+
+              <span>We couldn't find a valid MFA verification session.</span>
+            </div>
+
+            <Button
+              type="button"
+              fullWidth
+              onClick={() =>
+                navigate("/login", {
+                  replace: true,
+                })
+              }
+            >
+              Return to sign in
+            </Button>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <AuthLayout
-      title="Verify your identity"
-      description={`Enter the verification code from your authenticator app for ${
-        state?.email ?? "your account"
-      }.`}
-    >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {error && (
-          <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+    <main className="mfa-page">
+      <div className="mfa-shell">
+        {/* HEADER */}
+
+        <div className="mfa-top-brand">
+          <div className="mfa-brand-mark">
+            <ShieldCheck size={21} />
           </div>
-        )}
 
-        <div>
-          <label
-            htmlFor="mfa-code"
-            className="mb-2 block text-sm font-medium text-slate-700"
-          >
-            Verification code
-          </label>
-
-          <input
-            id="mfa-code"
-            value={code}
-            onChange={(event) =>
-              setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-            }
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="000000"
-            maxLength={6}
-            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-center text-xl font-semibold tracking-[0.4em] text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
+          <div>
+            <strong>EchoLife</strong>
+            <span>Private family space</span>
+          </div>
         </div>
 
-        <Button type="submit" fullWidth loading={isSubmitting}>
-          Verify code
-        </Button>
+        {/* CARD */}
 
-        <div className="text-center">
-          <Link
-            to="/login"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700"
-          >
-            Back to sign in
-          </Link>
+        <section className="mfa-card">
+          {/* ICON */}
+
+          <div className="mfa-icon-wrapper">
+            <div className="mfa-main-icon">
+              <Smartphone size={25} />
+            </div>
+
+            <div className="mfa-icon-check">
+              <CheckCircle2 size={13} />
+            </div>
+          </div>
+
+          {/* TITLE */}
+
+          <div className="mfa-heading">
+            <span className="mfa-eyebrow">TWO-FACTOR AUTHENTICATION</span>
+
+            <h1>Verify your identity</h1>
+
+            <p>
+              Enter the 6-digit verification code from your authenticator app to
+              continue.
+            </p>
+          </div>
+
+          {/* ACCOUNT */}
+
+          {state.email && (
+            <div className="mfa-account">
+              <div className="mfa-account-icon">
+                <LockKeyhole size={14} />
+              </div>
+
+              <div>
+                <span>Signing in as</span>
+                <strong>{state.email}</strong>
+              </div>
+            </div>
+          )}
+
+          {/* ERROR */}
+
+          {error && (
+            <div className="mfa-error-box">
+              <LockKeyhole size={16} />
+
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* FORM */}
+
+          <form onSubmit={handleSubmit} className="mfa-form">
+            <div className="mfa-field">
+              <label htmlFor="mfa-code">Verification code</label>
+
+              <input
+                id="mfa-code"
+                value={code}
+                onChange={(event) =>
+                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="000000"
+                maxLength={6}
+                autoFocus
+                className="mfa-code-input"
+              />
+
+              <span className="mfa-field-help">
+                Enter the current 6-digit code shown in your authenticator app.
+              </span>
+            </div>
+
+            <Button type="submit" fullWidth loading={isSubmitting}>
+              Verify and continue
+            </Button>
+          </form>
+
+          {/* FOOTER */}
+
+          <div className="mfa-footer">
+            <Link to="/login">
+              <ArrowLeft size={13} />
+              Back to sign in
+            </Link>
+          </div>
+        </section>
+
+        {/* TRUST NOTE */}
+
+        <div className="mfa-trust">
+          <LockKeyhole size={12} />
+
+          <span>Your verification is securely processed by EchoLife.</span>
         </div>
-      </form>
-    </AuthLayout>
+      </div>
+    </main>
   );
 }
 
