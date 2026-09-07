@@ -1,424 +1,971 @@
+/* =========================================================
+   ECHOLIFE — SETTINGS PAGE
+   Professional full-width SaaS dashboard
+   Blue EchoLife design system
+========================================================= */
+
+
+/* =========================================================
+   DESIGN TOKENS
+========================================================= */
+
 .settings-page {
+  --settings-blue: #2563eb;
+  --settings-blue-dark: #1d4ed8;
+  --settings-blue-soft: #eff6ff;
+  --settings-blue-border: #dbeafe;
+
+  --settings-text: #172033;
+  --settings-text-strong: #1e293b;
+  --settings-text-muted: #64748b;
+  --settings-text-light: #94a3b8;
+
+  --settings-border: #e2e8f0;
+  --settings-border-soft: #edf2f7;
+
+  --settings-bg: #f7f9fc;
+  --settings-card: #ffffff;
+
+  --settings-success: #15803d;
+  --settings-success-bg: #f0fdf4;
+  --settings-success-border: #bbf7d0;
+
+  --settings-danger: #dc2626;
+  --settings-danger-dark: #b91c1c;
+  --settings-danger-bg: #fff7f7;
+  --settings-danger-border: #fecaca;
+
+  --settings-radius-sm: 10px;
+  --settings-radius-md: 14px;
+  --settings-radius-lg: 18px;
+
   width: 100%;
   min-height: calc(100vh - 72px);
+
   box-sizing: border-box;
-  padding: 30px 32px 48px;
-  background: #f8fafc;
+
+  padding: 34px clamp(22px, 3vw, 52px) 60px;
+
+  background: var(--settings-bg);
+
+  color: var(--settings-text);
+
+  overflow-x: hidden;
 }
 
-/* HEADER */
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
 
 .settings-header {
-  max-width: 1050px;
-  margin: 0 auto 20px;
+  width: 100%;
+  max-width: none;
+
+  margin: 0 0 30px;
 
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 15px;
+
+  gap: 24px;
+}
+
+.settings-header > div:first-child {
+  min-width: 0;
 }
 
 .settings-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
 
-  color: #2563eb;
+  gap: 7px;
 
-  font-size: 7px;
+  margin-bottom: 8px;
+
+  color: var(--settings-blue);
+
+  font-size: 11px;
+  line-height: 1.2;
+
   font-weight: 800;
-  letter-spacing: 0.1em;
+
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.settings-eyebrow svg {
+  width: 14px;
+  height: 14px;
+
+  flex: 0 0 auto;
 }
 
 .settings-header h1 {
-  margin: 6px 0 5px;
+  margin: 0 0 8px;
 
-  color: #0f172a;
+  color: var(--settings-text);
 
-  font-size: 27px;
-  font-weight: 760;
+  font-size: clamp(28px, 2.6vw, 38px);
+  line-height: 1.12;
 
-  letter-spacing: -0.03em;
+  font-weight: 800;
+
+  letter-spacing: -0.04em;
 }
 
 .settings-header p {
+  max-width: 760px;
+
   margin: 0;
 
-  color: #64748b;
+  color: var(--settings-text-muted);
 
-  font-size: 8px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.65;
 }
+
+
+/* =========================================================
+   SAVED INDICATOR
+========================================================= */
 
 .settings-saved {
+  flex: 0 0 auto;
+
   display: inline-flex;
   align-items: center;
-  gap: 5px;
 
-  padding: 6px 8px;
+  gap: 8px;
 
-  border-radius: 7px;
+  padding: 9px 13px;
 
-  background: #f0fdf4;
-  color: #15803d;
+  border: 1px solid var(--settings-success-border);
+  border-radius: 999px;
 
-  font-size: 6px;
-  font-weight: 700;
+  background: var(--settings-success-bg);
+  color: var(--settings-success);
+
+  font-size: 12px;
+  line-height: 1.2;
+
+  font-weight: 750;
+
+  white-space: nowrap;
 }
 
-/* LAYOUT */
+.settings-saved svg {
+  width: 15px;
+  height: 15px;
+}
+
+
+/* =========================================================
+   MAIN WORKSPACE
+========================================================= */
 
 .settings-layout {
-  max-width: 1050px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+
+  margin: 0;
 
   display: grid;
-  grid-template-columns: 215px minmax(0, 1fr);
-  gap: 13px;
+
+  grid-template-columns: 292px minmax(0, 1fr);
+
+  gap: 30px;
 
   align-items: start;
 }
 
-/* NAV */
+
+/* =========================================================
+   LEFT SETTINGS NAVIGATION
+========================================================= */
 
 .settings-navigation {
-  padding: 9px;
+  width: 100%;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 11px;
+  box-sizing: border-box;
 
-  background: #ffffff;
+  position: sticky;
+  top: 22px;
+
+  padding: 14px;
+
+  border: 1px solid var(--settings-border);
+  border-radius: var(--settings-radius-lg);
+
+  background: var(--settings-card);
+
+  box-shadow:
+    0 8px 30px rgba(15, 23, 42, 0.045);
+
+  overflow: hidden;
+
+  z-index: 5;
 }
+
+
+/* =========================================================
+   NAVIGATION LABELS
+========================================================= */
 
 .settings-nav-label {
-  padding: 8px 8px 6px;
+  padding: 11px 10px 8px;
 
-  color: #a0acba;
+  color: #9aa6b5;
 
-  font-size: 5px;
+  font-size: 10px;
+  line-height: 1.2;
+
   font-weight: 800;
 
-  letter-spacing: 0.1em;
+  letter-spacing: 0.11em;
+
+  text-transform: uppercase;
 }
 
+
+/* =========================================================
+   NAVIGATION BUTTON
+========================================================= */
+
 .settings-navigation button {
+  position: relative;
+
   width: 100%;
+  min-height: 58px;
+
+  box-sizing: border-box;
 
   display: flex;
   align-items: center;
-  gap: 8px;
 
-  padding: 9px 8px;
+  gap: 12px;
 
-  border: 0;
-  border-radius: 7px;
+  margin: 2px 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
 
   background: transparent;
-  color: #94a3b8;
+
+  color: var(--settings-text-muted);
 
   font-family: inherit;
 
   text-align: left;
 
   cursor: pointer;
+
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.settings-navigation button::before {
+  content: "";
+
+  position: absolute;
+
+  left: -1px;
+  top: 50%;
+
+  width: 3px;
+  height: 0;
+
+  border-radius: 999px;
+
+  background: var(--settings-blue);
+
+  transform: translateY(-50%);
+
+  opacity: 0;
+
+  transition:
+    height 180ms ease,
+    opacity 180ms ease;
 }
 
 .settings-navigation button:hover {
   background: #f8fafc;
-  color: #475569;
+
+  color: var(--settings-text-strong);
+
+  transform: translateX(2px);
 }
 
 .settings-navigation button.active {
-  background: #eff6ff;
-  color: #2563eb;
+  border-color: var(--settings-blue-border);
+
+  background:
+    linear-gradient(
+      135deg,
+      #eff6ff 0%,
+      #f6f9ff 100%
+    );
+
+  color: var(--settings-blue);
+
+  box-shadow:
+    0 4px 14px rgba(37, 99, 235, 0.06);
 }
 
-.settings-navigation button > span {
-  flex: 1;
+.settings-navigation button.active::before {
+  height: 25px;
 
+  opacity: 1;
+}
+
+
+/* =========================================================
+   NAV ICON
+========================================================= */
+
+.settings-navigation button > svg:first-child {
+  width: 18px;
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  color: #94a3b8;
+
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.settings-navigation button:hover > svg:first-child {
+  color: #64748b;
+
+  transform: scale(1.04);
+}
+
+.settings-navigation button.active > svg:first-child {
+  color: var(--settings-blue);
+}
+
+
+/* =========================================================
+   NAV TEXT
+========================================================= */
+
+.settings-navigation button > span {
   min-width: 0;
+
+  flex: 1;
 
   display: flex;
   flex-direction: column;
-  gap: 2px;
+
+  gap: 4px;
 }
 
 .settings-navigation button strong {
-  color: #475569;
-  font-size: 6px;
+  display: block;
+
+  overflow: hidden;
+
+  color: #334155;
+
+  font-size: 13px;
+  line-height: 1.3;
+
+  font-weight: 750;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .settings-navigation button.active strong {
-  color: #2563eb;
+  color: var(--settings-blue);
 }
 
 .settings-navigation button small {
-  color: #a1acb9;
-  font-size: 5px;
+  display: block;
+
+  overflow: hidden;
+
+  color: #94a3b8;
+
+  font-size: 10.5px;
+  line-height: 1.35;
+
+  font-weight: 500;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
+
+
+/* =========================================================
+   NAV CHEVRON
+========================================================= */
 
 .settings-navigation button > svg:last-child {
-  opacity: 0.5;
+  width: 15px;
+  height: 15px;
+
+  flex: 0 0 auto;
+
+  color: #a8b3c1;
+
+  opacity: 0.7;
+
+  transition:
+    transform 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
 }
 
-/* SECURITY NOTE */
+.settings-navigation button:hover > svg:last-child {
+  color: var(--settings-blue);
+
+  opacity: 1;
+
+  transform: translateX(2px);
+}
+
+.settings-navigation button.active > svg:last-child {
+  color: var(--settings-blue);
+
+  opacity: 1;
+}
+
+
+/* =========================================================
+   PREFERENCES SECTION
+========================================================= */
+
+.settings-preferences-label {
+  margin-top: 18px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid var(--settings-border-soft);
+}
+
+
+/* =========================================================
+   PROTECTED SPACE NOTE
+========================================================= */
 
 .settings-security-note {
   display: flex;
   align-items: flex-start;
-  gap: 7px;
 
-  margin: 10px 2px 2px;
-  padding: 9px;
+  gap: 11px;
 
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
+  margin: 18px 2px 2px;
 
-  background: #f8fbff;
+  padding: 15px;
 
-  color: #2563eb;
+  border: 1px solid var(--settings-blue-border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f8fbff 0%,
+      #eff6ff 100%
+    );
+
+  color: var(--settings-blue);
+}
+
+.settings-security-note > svg {
+  width: 18px;
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  margin-top: 1px;
 }
 
 .settings-security-note > div {
+  min-width: 0;
+
   flex: 1;
 }
 
 .settings-security-note strong {
   display: block;
 
-  color: #334155;
-  font-size: 6px;
+  color: #1e3a8a;
+
+  font-size: 12px;
+  line-height: 1.35;
+
+  font-weight: 750;
 }
 
 .settings-security-note p {
-  margin: 3px 0 0;
+  margin: 5px 0 0;
 
-  color: #94a3b8;
-  font-size: 5px;
-  line-height: 1.5;
+  color: #64748b;
+
+  font-size: 10px;
+  line-height: 1.55;
 }
 
-/* CONTENT */
+
+/* =========================================================
+   RIGHT CONTENT AREA
+========================================================= */
 
 .settings-content {
+  width: 100%;
   min-width: 0;
 
   display: flex;
   flex-direction: column;
-  gap: 11px;
+
+  gap: 20px;
+
+  animation: settingsContentIn 240ms ease both;
 }
+
+@keyframes settingsContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================================
+   SETTINGS CARD
+========================================================= */
 
 .settings-card {
-  padding: 16px;
+  width: 100%;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  box-sizing: border-box;
 
-  background: #ffffff;
+  padding: 28px;
+
+  border: 1px solid var(--settings-border);
+  border-radius: var(--settings-radius-lg);
+
+  background: var(--settings-card);
+
+  box-shadow:
+    0 8px 30px rgba(15, 23, 42, 0.045);
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
+
+.settings-card:hover {
+  border-color: #d7e2ef;
+
+  box-shadow:
+    0 12px 36px rgba(15, 23, 42, 0.055);
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
 
 .settings-card-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 
-  margin-bottom: 15px;
+  gap: 20px;
+
+  margin-bottom: 25px;
+}
+
+.settings-card-heading > div:first-child {
+  min-width: 0;
 }
 
 .settings-card-heading span {
-  color: #2563eb;
+  display: block;
 
-  font-size: 5px;
+  margin-bottom: 7px;
+
+  color: var(--settings-blue);
+
+  font-size: 10px;
+  line-height: 1.2;
+
   font-weight: 800;
 
   letter-spacing: 0.1em;
+
+  text-transform: uppercase;
 }
 
 .settings-card-heading h2 {
-  margin: 4px 0 3px;
+  margin: 0 0 6px;
 
-  color: #334155;
+  color: var(--settings-text);
 
-  font-size: 11px;
-  font-weight: 750;
+  font-size: 22px;
+  line-height: 1.25;
+
+  font-weight: 800;
+
+  letter-spacing: -0.025em;
 }
 
 .settings-card-heading p {
+  max-width: 760px;
+
   margin: 0;
 
-  color: #94a3b8;
+  color: var(--settings-text-muted);
 
-  font-size: 6px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
+
+/* =========================================================
+   HEADING ICON
+========================================================= */
+
 .settings-heading-icon {
-  width: 29px;
-  height: 29px;
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 7px;
-
-  background: #eff6ff;
-  color: #2563eb;
+  border-radius: 12px;
 }
 
-/* FORM */
+.settings-heading-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.settings-heading-icon.blue {
+  color: var(--settings-blue);
+
+  background: var(--settings-blue-soft);
+}
+
+.settings-heading-icon.green {
+  color: #168447;
+
+  background: #eaf8ef;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
 
 .settings-form {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
-  gap: 11px;
+
+  gap: 20px;
 }
 
+
+/* =========================================================
+   FORM LABEL
+========================================================= */
+
 .settings-form label {
-  display: block;
+  display: flex;
+  flex-direction: column;
 
-  color: #475569;
+  gap: 8px;
 
-  font-size: 6px;
+  color: #334155;
+
+  font-size: 13px;
+  line-height: 1.4;
+
   font-weight: 700;
 }
 
-.settings-input {
-  height: 35px;
 
-  display: flex;
-  align-items: center;
-  gap: 7px;
+/* =========================================================
+   INPUT
+========================================================= */
+
+.settings-input {
+  width: 100%;
+  min-height: 48px;
 
   box-sizing: border-box;
 
-  margin-top: 5px;
-  padding: 0 9px;
+  display: flex;
+  align-items: center;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
+  gap: 10px;
+
+  padding: 0 14px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 11px;
 
   background: #ffffff;
-  color: #94a3b8;
+
+  color: #64748b;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.settings-input:hover {
+  border-color: #b9c6d6;
 }
 
 .settings-input:focus-within {
-  border-color: #93c5fd;
+  border-color: var(--settings-blue);
 
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.05);
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.settings-input input {
+.settings-input > svg {
+  width: 17px;
+  height: 17px;
+
+  flex: 0 0 auto;
+
+  color: #94a3b8;
+}
+
+.settings-input input,
+.settings-input textarea,
+.settings-input select {
   width: 100%;
+  min-width: 0;
 
   border: 0;
   outline: 0;
 
   background: transparent;
-  color: #334155;
+
+  color: var(--settings-text);
 
   font-family: inherit;
-  font-size: 7px;
+
+  font-size: 14px;
+  line-height: 1.5;
 }
+
+.settings-input textarea {
+  min-height: 110px;
+
+  padding: 13px 0;
+
+  resize: vertical;
+}
+
+.settings-input select {
+  cursor: pointer;
+}
+
+.settings-input input::placeholder,
+.settings-input textarea::placeholder {
+  color: #a0acba;
+}
+
+
+/* =========================================================
+   EMAIL VERIFIED STATUS
+========================================================= */
 
 .settings-email-status {
   display: flex;
   align-items: flex-start;
-  gap: 7px;
 
-  padding: 9px;
+  gap: 10px;
+
+  padding: 13px 14px;
 
   border: 1px solid #dcfce7;
-  border-radius: 7px;
+  border-radius: 11px;
 
-  background: #f0fdf4;
-  color: #15803d;
+  background: var(--settings-success-bg);
+
+  color: var(--settings-success);
+}
+
+.settings-email-status > svg {
+  width: 17px;
+  height: 17px;
+
+  flex: 0 0 auto;
+
+  margin-top: 1px;
 }
 
 .settings-email-status div {
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
-  gap: 2px;
+
+  gap: 3px;
 }
 
 .settings-email-status strong {
   color: #166534;
-  font-size: 6px;
+
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .settings-email-status span {
   color: #4d7c5b;
-  font-size: 5px;
+
+  font-size: 11px;
+  line-height: 1.45;
 }
 
+
+/* =========================================================
+   FORM FOOTER
+========================================================= */
+
 .settings-form-footer {
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  gap: 10px;
+  gap: 16px;
 
-  padding-top: 3px;
+  padding-top: 5px;
 }
 
 .settings-form-footer > span {
   color: #94a3b8;
 
-  font-size: 5px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
 .settings-form-footer button {
-  min-height: 31px;
+  min-height: 44px;
 
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
 
-  padding: 0 10px;
+  gap: 7px;
+
+  padding: 0 18px;
 
   border: 0;
-  border-radius: 7px;
+  border-radius: 10px;
 
-  background: #2563eb;
+  background: var(--settings-blue);
   color: #ffffff;
 
   font-family: inherit;
-  font-size: 6px;
-  font-weight: 700;
+
+  font-size: 13px;
+  line-height: 1;
+
+  font-weight: 750;
 
   cursor: pointer;
+
+  box-shadow:
+    0 5px 14px rgba(37, 99, 235, 0.16);
+
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .settings-form-footer button:hover {
-  background: #1d4ed8;
+  background: var(--settings-blue-dark);
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.22);
+}
+
+.settings-form-footer button:active {
+  transform: translateY(0);
 }
 
 .settings-form-footer button:disabled {
   background: #dbeafe;
   color: #93c5fd;
+
   cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
 }
+
+.settings-form-footer button svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
 
 .settings-error {
-  padding: 8px;
+  padding: 12px 14px;
 
-  border-radius: 7px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
 
   background: #fef2f2;
+
   color: #dc2626;
 
-  font-size: 6px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
-/* INFO ROW */
+
+/* =========================================================
+   INFORMATION ROW
+========================================================= */
 
 .settings-info-row {
-  min-height: 45px;
+  min-height: 62px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  gap: 20px;
 
   border-top: 1px solid #f1f5f9;
 }
@@ -428,55 +975,96 @@
 }
 
 .settings-info-row > div {
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
-  gap: 3px;
+
+  gap: 4px;
 }
 
 .settings-info-row span {
   color: #94a3b8;
-  font-size: 5px;
+
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .settings-info-row strong {
   color: #475569;
-  font-size: 7px;
+
+  font-size: 13px;
+  line-height: 1.4;
+
+  font-weight: 700;
 }
 
 .settings-info-row > svg {
+  flex: 0 0 auto;
+
   color: #94a3b8;
 }
 
+
+/* =========================================================
+   ACTIVE BADGE
+========================================================= */
+
 .settings-active-badge {
-  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+
+  padding: 5px 9px;
 
   border-radius: 999px;
 
-  background: #f0fdf4;
-  color: #15803d !important;
+  background: var(--settings-success-bg);
 
-  font-size: 5px !important;
+  color: var(--settings-success) !important;
+
+  font-size: 10px !important;
+  line-height: 1.2;
+
   font-weight: 750;
 }
 
-/* INFO CARD */
+
+/* =========================================================
+   INFORMATION CARD
+========================================================= */
 
 .settings-info-card {
+  width: 100%;
+
+  box-sizing: border-box;
+
   display: flex;
   align-items: flex-start;
-  gap: 8px;
 
-  padding: 12px;
+  gap: 12px;
 
-  border: 1px solid #dbeafe;
-  border-radius: 9px;
+  padding: 16px;
+
+  border: 1px solid var(--settings-blue-border);
+  border-radius: 13px;
 
   background: #f8fbff;
 
-  color: #2563eb;
+  color: var(--settings-blue);
+}
+
+.settings-info-card > svg {
+  width: 19px;
+  height: 19px;
+
+  flex: 0 0 auto;
+
+  color: var(--settings-blue);
 }
 
 .settings-info-card > div {
+  min-width: 0;
+
   flex: 1;
 }
 
@@ -484,25 +1072,34 @@
   display: block;
 
   color: #334155;
-  font-size: 7px;
+
+  font-size: 13px;
+  line-height: 1.4;
+
+  font-weight: 750;
 }
 
 .settings-info-card p {
-  margin: 4px 0 0;
+  margin: 5px 0 0;
 
   color: #64748b;
-  font-size: 6px;
-  line-height: 1.6;
+
+  font-size: 12px;
+  line-height: 1.55;
 }
 
-/* TOGGLES */
+
+/* =========================================================
+   TOGGLE ROW
+========================================================= */
 
 .settings-toggle-row {
-  min-height: 56px;
+  min-height: 68px;
 
   display: flex;
   align-items: center;
-  gap: 9px;
+
+  gap: 12px;
 
   border-top: 1px solid #f1f5f9;
 }
@@ -512,46 +1109,66 @@
 }
 
 .settings-toggle-icon {
-  width: 29px;
-  height: 29px;
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  flex: 0 0 29px;
+  border-radius: 11px;
 
-  border-radius: 7px;
+  background: var(--settings-blue-soft);
 
-  background: #eff6ff;
-  color: #2563eb;
+  color: var(--settings-blue);
+}
+
+.settings-toggle-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .settings-toggle-row > div:nth-child(2) {
+  min-width: 0;
+
   flex: 1;
 
   display: flex;
   flex-direction: column;
-  gap: 3px;
+
+  gap: 4px;
 }
 
 .settings-toggle-row strong {
   color: #475569;
-  font-size: 7px;
+
+  font-size: 13px;
+  line-height: 1.4;
+
+  font-weight: 700;
 }
 
 .settings-toggle-row div:nth-child(2) span {
   color: #94a3b8;
-  font-size: 5px;
+
+  font-size: 11px;
+  line-height: 1.45;
 }
+
+
+/* =========================================================
+   TOGGLE
+========================================================= */
 
 .settings-toggle {
   position: relative;
 
-  width: 31px;
-  height: 18px;
+  width: 42px;
+  height: 24px;
 
-  flex: 0 0 31px;
+  flex: 0 0 42px;
 
   padding: 0;
 
@@ -561,6 +1178,15 @@
   background: #cbd5e1;
 
   cursor: pointer;
+
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.settings-toggle:hover {
+  box-shadow:
+    0 0 0 3px rgba(148, 163, 184, 0.12);
 }
 
 .settings-toggle > span {
@@ -569,165 +1195,279 @@
   top: 3px;
   left: 3px;
 
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
 
   border-radius: 50%;
 
   background: #ffffff;
 
-  transition: transform 0.15s ease;
+  box-shadow:
+    0 2px 5px rgba(15, 23, 42, 0.18);
+
+  transition: transform 180ms ease;
 }
 
 .settings-toggle.on {
-  background: #2563eb;
+  background: var(--settings-blue);
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .settings-toggle.on > span {
-  transform: translateX(13px);
+  transform: translateX(18px);
 }
 
+
+/* =========================================================
+   ALWAYS ON BADGE
+========================================================= */
+
 .settings-always-on {
-  padding: 4px 6px;
+  padding: 5px 8px;
 
   border-radius: 999px;
 
   background: #f1f5f9;
+
   color: #64748b;
 
-  font-size: 5px;
+  font-size: 10px;
+  line-height: 1.2;
+
+  font-weight: 650;
 }
 
-/* DANGER */
+
+/* =========================================================
+   DANGER ZONE
+========================================================= */
 
 .settings-danger-card {
-  padding: 14px;
+  padding: 22px;
 
-  border: 1px solid #fecaca;
-  border-radius: 11px;
+  border: 1px solid var(--settings-danger-border);
+  border-radius: var(--settings-radius-md);
 
-  background: #fffafa;
+  background:
+    linear-gradient(
+      145deg,
+      #fffafa 0%,
+      #fff7f7 100%
+    );
 }
 
 .settings-danger-heading {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+
+  gap: 12px;
 }
 
 .settings-danger-icon {
-  width: 29px;
-  height: 29px;
+  width: 40px;
+  height: 40px;
 
-  flex: 0 0 29px;
+  flex: 0 0 40px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 7px;
+  border-radius: 11px;
 
   background: #fee2e2;
-  color: #dc2626;
+
+  color: var(--settings-danger);
+}
+
+.settings-danger-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.settings-danger-heading > div {
+  min-width: 0;
 }
 
 .settings-danger-heading span {
-  color: #dc2626;
+  display: block;
 
-  font-size: 5px;
+  margin-bottom: 5px;
+
+  color: var(--settings-danger);
+
+  font-size: 10px;
+  line-height: 1.2;
+
   font-weight: 800;
 
   letter-spacing: 0.1em;
+
+  text-transform: uppercase;
 }
 
 .settings-danger-heading h2 {
-  margin: 3px 0;
+  margin: 0 0 5px;
 
   color: #7f1d1d;
 
-  font-size: 10px;
+  font-size: 17px;
+  line-height: 1.35;
+
+  font-weight: 800;
 }
 
 .settings-danger-heading p {
+  max-width: 700px;
+
   margin: 0;
 
   color: #991b1b;
 
-  font-size: 6px;
+  font-size: 11px;
   line-height: 1.6;
 }
 
 .settings-delete-button {
-  min-height: 29px;
+  min-height: 40px;
 
-  margin-top: 11px;
-  margin-left: 37px;
+  margin-top: 17px;
+  margin-left: 52px;
 
-  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  border: 1px solid #fecaca;
-  border-radius: 7px;
+  gap: 7px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--settings-danger-border);
+  border-radius: 9px;
 
   background: #ffffff;
-  color: #dc2626;
+
+  color: var(--settings-danger);
 
   font-family: inherit;
-  font-size: 6px;
-  font-weight: 700;
+
+  font-size: 12px;
+  line-height: 1;
+
+  font-weight: 750;
 
   cursor: pointer;
+
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
 .settings-delete-button:hover {
+  border-color: #fca5a5;
+
   background: #fef2f2;
+
+  transform: translateY(-1px);
 }
 
-/* MODAL */
+.settings-delete-button:active {
+  transform: translateY(0);
+}
+
+.settings-delete-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+
+/* =========================================================
+   DELETE MODAL
+========================================================= */
 
 .settings-modal-backdrop {
   position: fixed;
 
   inset: 0;
-  z-index: 100;
+
+  z-index: 1000;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: 20px;
+  padding: 24px;
 
-  background: rgba(15, 23, 42, 0.3);
+  background: rgba(15, 23, 42, 0.48);
+
+  backdrop-filter: blur(5px);
+
+  animation: settingsModalFade 160ms ease both;
+}
+
+@keyframes settingsModalFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .settings-delete-modal {
-  width: min(100%, 390px);
-
-  padding: 20px;
+  width: min(100%, 460px);
 
   box-sizing: border-box;
 
+  padding: 26px;
+
   border: 1px solid #fecaca;
-  border-radius: 13px;
+  border-radius: 17px;
 
   background: #ffffff;
 
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  box-shadow:
+    0 24px 70px rgba(15, 23, 42, 0.22);
+
+  animation: settingsModalIn 180ms ease both;
+}
+
+@keyframes settingsModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .settings-delete-modal-icon {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 11px;
+  margin-bottom: 15px;
 
-  border-radius: 11px;
+  border-radius: 13px;
 
   background: #fee2e2;
-  color: #dc2626;
+
+  color: var(--settings-danger);
+}
+
+.settings-delete-modal-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .settings-delete-modal h2 {
@@ -735,29 +1475,37 @@
 
   color: #7f1d1d;
 
-  font-size: 14px;
+  font-size: 20px;
+  line-height: 1.3;
+
+  font-weight: 800;
 }
 
 .settings-delete-modal > p {
-  margin: 6px 0 14px;
+  margin: 8px 0 18px;
 
   color: #64748b;
 
-  font-size: 7px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.65;
 }
 
 .settings-delete-modal label {
-  display: block;
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
 
   color: #475569;
 
-  font-size: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+
   font-weight: 700;
 }
 
 .settings-delete-modal label strong {
-  color: #dc2626;
+  color: var(--settings-danger);
 }
 
 .settings-delete-modal input {
@@ -765,190 +1513,926 @@
 
   box-sizing: border-box;
 
-  margin-top: 5px;
-  padding: 9px;
+  min-height: 45px;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
+  padding: 0 12px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
 
   outline: none;
+
+  background: #ffffff;
 
   color: #334155;
 
   font-family: inherit;
-  font-size: 7px;
+
+  font-size: 13px;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .settings-delete-modal input:focus {
-  border-color: #fca5a5;
+  border-color: #f87171;
 
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.05);
+  box-shadow:
+    0 0 0 3px rgba(220, 38, 38, 0.08);
 }
 
 .settings-delete-modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
 
-  margin-top: 15px;
+  gap: 9px;
+
+  margin-top: 20px;
 }
 
 .settings-delete-modal-actions button {
-  min-height: 30px;
+  min-height: 42px;
 
-  padding: 0 10px;
+  padding: 0 15px;
 
-  border-radius: 7px;
+  border-radius: 9px;
 
   font-family: inherit;
-  font-size: 6px;
-  font-weight: 700;
+
+  font-size: 12px;
+
+  font-weight: 750;
 
   cursor: pointer;
+
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
 .settings-delete-modal-actions button:first-child {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--settings-border);
 
   background: #ffffff;
+
   color: #64748b;
+}
+
+.settings-delete-modal-actions button:first-child:hover {
+  background: #f8fafc;
+
+  border-color: #cbd5e1;
 }
 
 .settings-delete-modal-actions button:last-child {
   border: 0;
 
-  background: #dc2626;
+  background: var(--settings-danger);
+
   color: #ffffff;
 }
 
 .settings-delete-modal-actions button:last-child:hover {
-  background: #b91c1c;
+  background: var(--settings-danger-dark);
+
+  transform: translateY(-1px);
 }
 
 .settings-delete-modal-actions button:last-child:disabled {
   background: #fecaca;
+
   color: #ffffff;
+
   cursor: not-allowed;
+
+  transform: none;
 }
 
-/* RESPONSIVE */
 
-@media (max-width: 800px) {
-  .settings-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-navigation {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3px;
-  }
-
-  .settings-nav-label {
-    grid-column: 1 / -1;
-  }
-
-  .settings-security-note {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 600px) {
-  .settings-page {
-    padding: 23px 16px 40px;
-  }
-
-  .settings-header {
-    align-items: flex-start;
-  }
-
-  .settings-header h1 {
-    font-size: 24px;
-  }
-
-  .settings-saved {
-    display: none;
-  }
-
-  .settings-navigation {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .settings-form-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .settings-form-footer button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .settings-delete-button {
-    width: calc(100% - 37px);
-  }
-}
 /* =========================================================
-   MFA SETUP BUTTON
+   SECURITY PAGE EMBEDDED IN SETTINGS
+========================================================= */
+
+.settings-security-container {
+  width: 100%;
+  min-width: 0;
+
+  animation: settingsInnerIn 220ms ease both;
+}
+
+.settings-security-container .security-page {
+  width: 100% !important;
+  max-width: none !important;
+
+  min-height: auto !important;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+}
+
+.settings-security-container .security-page > .security-header {
+  display: none !important;
+}
+
+.settings-security-container .security-layout {
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(280px, 330px);
+
+  gap: 22px;
+
+  align-items: start;
+}
+
+.settings-security-container .security-status {
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 0 20px !important;
+}
+
+
+/* =========================================================
+   SECURITY INTERNAL HEADER
+========================================================= */
+
+.settings-inner-page-header {
+  width: 100%;
+
+  margin: 0 0 23px;
+
+  padding: 0;
+}
+
+.settings-back-button {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  margin: 0 0 14px;
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #64748b;
+
+  font-family: inherit;
+
+  font-size: 12px;
+  line-height: 1.3;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.settings-back-button:hover {
+  color: var(--settings-blue);
+
+  transform: translateX(-2px);
+}
+
+.settings-back-icon {
+  transform: rotate(180deg);
+}
+
+.settings-inner-eyebrow {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--settings-blue);
+
+  font-size: 10px;
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+}
+
+.settings-inner-eyebrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.settings-inner-page-header h2 {
+  margin: 7px 0 0;
+
+  color: var(--settings-text);
+
+  font-size: 27px;
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  letter-spacing: -0.03em;
+}
+
+.settings-inner-page-header p {
+  max-width: 780px;
+
+  margin: 7px 0 0;
+
+  color: var(--settings-text-muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   SECURITY MFA BUTTON
 ========================================================= */
 
 .security-mfa-button {
-  min-height: 30px;
+  min-height: 40px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+
+  gap: 7px;
 
   flex: 0 0 auto;
 
-  padding: 0 11px;
+  padding: 0 14px;
 
   border: 1px solid #bfdbfe;
-  border-radius: 8px;
+  border-radius: 9px;
 
   background: #eff6ff;
-  color: #2563eb;
+
+  color: var(--settings-blue);
 
   font-family: inherit;
-  font-size: 6px;
-  font-weight: 750;
 
+  font-size: 12px;
   line-height: 1;
+
+  font-weight: 750;
 
   cursor: pointer;
 
   white-space: nowrap;
 
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.12s ease;
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .security-mfa-button:hover {
   background: #dbeafe;
+
   border-color: #93c5fd;
+
   color: #1d4ed8;
 
-  box-shadow: 0 2px 7px rgba(37, 99, 235, 0.12);
+  box-shadow:
+    0 5px 14px rgba(37, 99, 235, 0.1);
+
+  transform: translateY(-1px);
 }
 
 .security-mfa-button:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
 .security-mfa-button:focus-visible {
   outline: none;
 
-  border-color: #2563eb;
+  border-color: var(--settings-blue);
 
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .security-mfa-button svg {
-  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+
+
+/* =========================================================
+   BILLING EMBEDDED IN SETTINGS
+========================================================= */
+
+.settings-billing-container {
+  width: 100% !important;
+  min-width: 0;
+
+  max-width: none !important;
+
+  animation: settingsInnerIn 220ms ease both;
+}
+
+.settings-billing-container .billing-page {
+  width: 100% !important;
+  max-width: none !important;
+
+  min-height: auto !important;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+}
+
+.settings-billing-container .billing-header {
+  display: none !important;
+}
+
+.settings-billing-container .billing-current-card,
+.settings-billing-container .billing-section,
+.settings-billing-container .billing-history,
+.settings-billing-container .billing-two-column,
+.settings-billing-container .billing-danger {
+  width: 100% !important;
+  max-width: none !important;
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.settings-billing-container .billing-current-card {
+  margin-top: 0 !important;
+}
+
+
+/* =========================================================
+   BILLING NAV ACTIVE
+========================================================= */
+
+.settings-navigation button.settings-billing-active,
+.settings-navigation button.settings-security-active {
+  border-color: var(--settings-blue-border) !important;
+
+  background: var(--settings-blue-soft) !important;
+
+  color: var(--settings-blue) !important;
+}
+
+.settings-navigation button.settings-billing-active strong,
+.settings-navigation button.settings-security-active strong {
+  color: var(--settings-blue) !important;
+}
+
+.settings-navigation button.settings-billing-active svg,
+.settings-navigation button.settings-security-active svg {
+  color: var(--settings-blue) !important;
+}
+
+
+/* =========================================================
+   INNER SECTION ANIMATION
+========================================================= */
+
+@keyframes settingsInnerIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================================
+   DESKTOP — LARGE SCREENS
+========================================================= */
+
+@media (min-width: 1500px) {
+  .settings-page {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .settings-layout {
+    grid-template-columns: 310px minmax(0, 1fr);
+
+    gap: 34px;
+  }
+
+  .settings-navigation {
+    padding: 16px;
+  }
+
+  .settings-card {
+    padding: 32px;
+  }
+}
+
+
+/* =========================================================
+   DESKTOP — MEDIUM
+========================================================= */
+
+@media (max-width: 1250px) {
+  .settings-page {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .settings-layout {
+    grid-template-columns: 270px minmax(0, 1fr);
+
+    gap: 24px;
+  }
+
+  .settings-navigation button {
+    min-height: 55px;
+  }
+
+  .settings-navigation button strong {
+    font-size: 12.5px;
+  }
+
+  .settings-navigation button small {
+    font-size: 10px;
+  }
+}
+
+
+/* =========================================================
+   TABLET / COMPACT DESKTOP
+========================================================= */
+
+@media (max-width: 1050px) {
+  .settings-page {
+    padding: 26px 22px 50px;
+  }
+
+  .settings-header {
+    margin-bottom: 24px;
+  }
+
+  .settings-layout {
+    grid-template-columns: 235px minmax(0, 1fr);
+
+    gap: 20px;
+  }
+
+  .settings-navigation {
+    padding: 11px;
+  }
+
+  .settings-navigation button {
+    min-height: 53px;
+
+    gap: 9px;
+
+    padding: 9px 10px;
+  }
+
+  .settings-navigation button > svg:first-child {
+    width: 17px;
+    height: 17px;
+  }
+
+  .settings-navigation button strong {
+    font-size: 12px;
+  }
+
+  .settings-navigation button small {
+    font-size: 9.5px;
+  }
+
+  .settings-card {
+    padding: 24px;
+  }
+
+  .settings-security-container .security-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+  .settings-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 14px;
+  }
+
+  .settings-layout {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+  }
+
+  /*
+     On tablet, navigation becomes a horizontal
+     settings control area above the content.
+  */
+
+  .settings-navigation {
+    position: static;
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 5px;
+
+    padding: 10px;
+  }
+
+  .settings-nav-label {
+    grid-column: 1 / -1;
+
+    padding: 9px 9px 6px;
+  }
+
+  .settings-preferences-label {
+    grid-column: 1 / -1;
+
+    margin-top: 8px;
+  }
+
+  .settings-security-note {
+    grid-column: 1 / -1;
+
+    margin-top: 8px;
+  }
+
+  .settings-content {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 640px) {
+  .settings-page {
+    min-height: calc(100vh - 64px);
+
+    padding: 20px 15px 40px;
+  }
+
+  .settings-header {
+    margin-bottom: 19px;
+
+    gap: 10px;
+  }
+
+  .settings-eyebrow {
+    font-size: 10px;
+  }
+
+  .settings-header h1 {
+    font-size: 28px;
+  }
+
+  .settings-header p {
+    font-size: 12.5px;
+  }
+
+  .settings-saved {
+    padding: 8px 11px;
+
+    font-size: 11px;
+  }
+
+  .settings-layout {
+    gap: 15px;
+  }
+
+  .settings-navigation {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 9px;
+
+    border-radius: 15px;
+  }
+
+  .settings-nav-label {
+    padding: 9px 9px 6px;
+
+    font-size: 9px;
+  }
+
+  .settings-navigation button {
+    min-height: 53px;
+
+    padding: 9px 10px;
+
+    border-radius: 11px;
+  }
+
+  .settings-navigation button strong {
+    font-size: 12px;
+  }
+
+  .settings-navigation button small {
+    font-size: 9.5px;
+  }
+
+  .settings-security-note {
+    margin: 11px 2px 2px;
+
+    padding: 13px;
+
+    border-radius: 12px;
+  }
+
+  .settings-security-note strong {
+    font-size: 11px;
+  }
+
+  .settings-security-note p {
+    font-size: 9.5px;
+  }
+
+  .settings-card {
+    padding: 20px;
+
+    border-radius: 15px;
+  }
+
+  .settings-card-heading {
+    margin-bottom: 20px;
+
+    gap: 13px;
+  }
+
+  .settings-card-heading span {
+    font-size: 9px;
+  }
+
+  .settings-card-heading h2 {
+    font-size: 20px;
+  }
+
+  .settings-card-heading p {
+    font-size: 12px;
+  }
+
+  .settings-heading-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+
+    border-radius: 10px;
+  }
+
+  .settings-heading-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .settings-form {
+    gap: 17px;
+  }
+
+  .settings-form label {
+    font-size: 12px;
+  }
+
+  .settings-input {
+    min-height: 45px;
+
+    padding: 0 12px;
+  }
+
+  .settings-input input,
+  .settings-input textarea,
+  .settings-input select {
+    font-size: 13px;
+  }
+
+  .settings-form-footer {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .settings-form-footer > span {
+    font-size: 10px;
+  }
+
+  .settings-form-footer button {
+    width: 100%;
+  }
+
+  .settings-toggle-row {
+    min-height: 64px;
+  }
+
+  .settings-toggle-row strong {
+    font-size: 12px;
+  }
+
+  .settings-toggle-row div:nth-child(2) span {
+    font-size: 10px;
+  }
+
+  .settings-inner-page-header {
+    margin-bottom: 19px;
+  }
+
+  .settings-inner-page-header h2 {
+    font-size: 23px;
+  }
+
+  .settings-inner-page-header p {
+    font-size: 12px;
+  }
+
+  .settings-back-button {
+    font-size: 11px;
+  }
+
+  .settings-delete-button {
+    width: calc(100% - 52px);
+
+    margin-left: 52px;
+  }
+
+  .settings-delete-modal {
+    padding: 21px;
+
+    border-radius: 15px;
+  }
+
+  .settings-delete-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .settings-delete-modal-actions button {
+    width: 100%;
+  }
+
+  .settings-billing-container .billing-plans {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+  .settings-page {
+    padding: 17px 11px 32px;
+  }
+
+  .settings-header h1 {
+    font-size: 25px;
+  }
+
+  .settings-header p {
+    font-size: 11.5px;
+  }
+
+  .settings-navigation {
+    padding: 7px;
+  }
+
+  .settings-navigation button {
+    min-height: 51px;
+
+    gap: 9px;
+  }
+
+  .settings-navigation button > svg:first-child {
+    width: 16px;
+    height: 16px;
+  }
+
+  .settings-navigation button strong {
+    font-size: 11px;
+  }
+
+  .settings-navigation button small {
+    font-size: 9px;
+  }
+
+  .settings-card {
+    padding: 17px;
+  }
+
+  .settings-card-heading h2 {
+    font-size: 18px;
+  }
+
+  .settings-card-heading p {
+    font-size: 11px;
+  }
+
+  .settings-heading-icon {
+    width: 35px;
+    height: 35px;
+
+    flex-basis: 35px;
+  }
+
+  .settings-danger-card {
+    padding: 17px;
+  }
+
+  .settings-danger-heading {
+    gap: 9px;
+  }
+
+  .settings-danger-icon {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+  }
+
+  .settings-danger-heading h2 {
+    font-size: 15px;
+  }
+
+  .settings-danger-heading p {
+    font-size: 10px;
+  }
+
+  .settings-delete-button {
+    width: 100%;
+
+    margin-left: 0;
+  }
+
+  .settings-inner-page-header h2 {
+    font-size: 21px;
+  }
+}
+
+
+/* =========================================================
+   FOCUS STATES
+========================================================= */
+
+.settings-page button:focus-visible,
+.settings-page input:focus-visible,
+.settings-page textarea:focus-visible,
+.settings-page select:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.16);
+
+  outline-offset: 2px;
+}
+
+.settings-navigation button:focus-visible {
+  outline-offset: -2px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-page *,
+  .settings-page *::before,
+  .settings-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

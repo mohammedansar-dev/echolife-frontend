@@ -1,3 +1,6 @@
+/* =========================================================
+   APP SHELL
+========================================================= */
 
 .app-shell {
   min-height: 100vh;
@@ -7,10 +10,13 @@
 }
 
 
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
 .app-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-
   z-index: 50;
 
   width: 250px;
@@ -26,6 +32,9 @@
 }
 
 
+/* =========================================================
+   BRAND
+========================================================= */
 
 .app-sidebar-brand {
   height: 72px;
@@ -42,7 +51,6 @@
 .app-brand {
   display: inline-flex;
   align-items: center;
-
   gap: 10px;
 
   padding: 0;
@@ -103,6 +111,10 @@
 }
 
 
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
 .app-navigation {
   flex: 1;
 
@@ -124,8 +136,14 @@
   letter-spacing: 0.09em;
 }
 
-.app-nav-account-label {
-  margin-top: 25px;
+/*
+ * Billing gets its own small section label.
+ * Profile / Settings / Security are no longer here.
+ */
+
+.app-nav-billing-label {
+  margin-top: 28px;
+  margin-bottom: 9px;
 }
 
 .app-nav-item {
@@ -145,6 +163,7 @@
   border-radius: 9px;
 
   background: transparent;
+
   color: #64748b;
 
   font-family: inherit;
@@ -158,7 +177,8 @@
 
   transition:
     background 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .app-nav-item:hover {
@@ -166,8 +186,13 @@
   color: #334155;
 }
 
+.app-nav-item:active {
+  transform: scale(0.99);
+}
+
 .app-nav-item.active {
   background: #eff6ff;
+
   color: #2563eb;
 
   font-weight: 650;
@@ -188,6 +213,10 @@
   color: #94a3b8;
 
   font-size: 15px;
+
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .app-nav-item.active .app-nav-icon {
@@ -195,12 +224,20 @@
 }
 
 
+/* =========================================================
+   SIDEBAR FOOTER
+========================================================= */
+
 .app-sidebar-footer {
   padding: 14px;
 
   border-top: 1px solid #f1f5f9;
 }
 
+
+/* =========================================================
+   MEMORY STORAGE
+========================================================= */
 
 .app-storage {
   padding: 12px;
@@ -263,6 +300,10 @@
 }
 
 
+/* =========================================================
+   SECURITY / PRIVACY NOTE
+========================================================= */
+
 .app-sidebar-security {
   display: flex;
   align-items: flex-start;
@@ -270,7 +311,6 @@
   gap: 8px;
 
   margin-top: 10px;
-
   padding: 9px;
 
   border-radius: 8px;
@@ -303,6 +343,9 @@
 }
 
 
+/* =========================================================
+   MAIN
+========================================================= */
 
 .app-main {
   width: calc(100% - 250px);
@@ -313,9 +356,12 @@
 }
 
 
+/* =========================================================
+   HEADER
+========================================================= */
+
 .app-header {
   position: sticky;
-
   top: 0;
 
   z-index: 30;
@@ -352,6 +398,10 @@
 }
 
 
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
 .app-menu-button {
   display: none;
 
@@ -365,6 +415,7 @@
   border-radius: 8px;
 
   background: #ffffff;
+
   color: #64748b;
 
   cursor: pointer;
@@ -375,6 +426,9 @@
 }
 
 
+/* =========================================================
+   BREADCRUMB
+========================================================= */
 
 .app-breadcrumb {
   display: flex;
@@ -401,6 +455,10 @@
 }
 
 
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
 .app-notification-button {
   position: relative;
 
@@ -415,9 +473,14 @@
   border-radius: 8px;
 
   background: #ffffff;
+
   color: #64748b;
 
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .app-notification-button:hover {
@@ -435,11 +498,16 @@
   height: 5px;
 
   border: 1px solid #ffffff;
+
   border-radius: 50%;
 
   background: #2563eb;
 }
 
+
+/* =========================================================
+   PROFILE BUTTON
+========================================================= */
 
 .app-profile-wrapper {
   position: relative;
@@ -475,6 +543,7 @@
   border-radius: 9px;
 
   background: #dbeafe;
+
   color: #2563eb;
 
   font-size: 10px;
@@ -506,7 +575,7 @@
 .app-profile-button > svg {
   color: #94a3b8;
 
-  transition: transform 0.15s ease;
+  transition: transform 0.18s ease;
 }
 
 .app-profile-button > svg.rotate {
@@ -514,6 +583,9 @@
 }
 
 
+/* =========================================================
+   PROFILE MENU
+========================================================= */
 
 .app-profile-menu {
   position: absolute;
@@ -521,28 +593,52 @@
   top: calc(100% + 9px);
   right: 0;
 
-  width: 175px;
+  width: 190px;
 
-  padding: 6px;
+  padding: 7px;
 
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+
+  border-radius: 12px;
 
   background: #ffffff;
 
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.10),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+
+  animation: profileMenuIn 0.16s ease;
+}
+
+@keyframes profileMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .app-profile-menu button {
   width: 100%;
-  height: 34px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
 
   padding: 0 10px;
 
   border: 0;
-  border-radius: 7px;
+
+  border-radius: 8px;
 
   background: transparent;
+
   color: #64748b;
 
   font-family: inherit;
@@ -552,10 +648,15 @@
   text-align: left;
 
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .app-profile-menu button:hover {
   background: #f8fafc;
+
   color: #334155;
 }
 
@@ -563,7 +664,13 @@
   color: #dc2626;
 }
 
-.app-profile-menu div {
+.app-profile-menu button.danger:hover {
+  background: #fef2f2;
+
+  color: #dc2626;
+}
+
+.app-profile-menu-divider {
   height: 1px;
 
   margin: 5px 0;
@@ -571,7 +678,29 @@
   background: #f1f5f9;
 }
 
+.app-profile-menu-dot {
+  width: 7px;
+  height: 7px;
 
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+
+  background: #cbd5e1;
+}
+
+.app-profile-menu-dot.profile {
+  background: #60a5fa;
+}
+
+.app-profile-menu-dot.settings {
+  background: #94a3b8;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
 
 .app-content {
   width: 100%;
@@ -580,12 +709,18 @@
 }
 
 
+/* =========================================================
+   MOBILE OVERLAY
+========================================================= */
 
 .app-sidebar-overlay {
   display: none;
 }
 
 
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media (max-width: 1000px) {
   .app-sidebar {
@@ -604,13 +739,17 @@
 }
 
 
+/* =========================================================
+   MOBILE
+========================================================= */
+
 @media (max-width: 850px) {
   .app-sidebar {
     width: 250px;
 
     transform: translateX(-100%);
 
-    transition: transform 0.2s ease;
+    transition: transform 0.22s ease;
 
     box-shadow: 12px 0 30px rgba(15, 23, 42, 0.08);
   }
@@ -635,6 +774,8 @@
     border: 0;
 
     background: rgba(15, 23, 42, 0.25);
+
+    backdrop-filter: blur(2px);
   }
 
   .app-main {
@@ -653,6 +794,9 @@
 }
 
 
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
 
 @media (max-width: 600px) {
   .app-header {
@@ -676,11 +820,23 @@
   .app-header-right {
     gap: 6px;
   }
+
+  .app-profile-menu {
+    width: 175px;
+  }
 }
 
-.app-profile-menu button {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}  
 
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .app-nav-item,
+  .app-profile-button > svg,
+  .app-profile-menu,
+  .app-sidebar {
+    transition: none;
+    animation: none;
+  }
+}

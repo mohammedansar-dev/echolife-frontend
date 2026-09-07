@@ -15,6 +15,8 @@ import type {
 
 export interface PersonaConfiguration {
   name: string;
+  relationship: string;
+  description: string;
   tone: string;
   selectedMemoryIds: string[];
 }

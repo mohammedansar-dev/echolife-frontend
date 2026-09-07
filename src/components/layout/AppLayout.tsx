@@ -1,4 +1,11 @@
-import { Bell, ChevronDown, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import {
+  Bell,
+  ChevronDown,
+  LogOut,
+  Menu,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 
 import { useAuth } from "../../features/auth/AuthContext";
@@ -13,6 +20,10 @@ interface NavigationItem {
   icon: string;
 }
 
+/* =========================================================
+   MAIN SIDEBAR NAVIGATION
+========================================================= */
+
 const navigation: NavigationItem[] = [
   {
     label: "Dashboard",
@@ -20,14 +31,9 @@ const navigation: NavigationItem[] = [
     icon: "⌂",
   },
   {
-    label: "Memory Vault",
-    path: "/app/vault",
-    icon: "▣",
-  },
-  {
-    label: "Time Capsules",
-    path: "/app/time-capsule",
-    icon: "◷",
+    label: "AI Persona",
+    path: "/app/persona",
+    icon: "✦",
   },
   {
     label: "Family",
@@ -35,16 +41,10 @@ const navigation: NavigationItem[] = [
     icon: "♧",
   },
   {
-    label: "AI Persona",
-    path: "/app/persona",
-    icon: "✦",
-  },
-  {
     label: "Sessions",
     path: "/app/sessions",
     icon: "◉",
   },
-
   {
     label: "Reports",
     path: "/app/reports",
@@ -62,28 +62,14 @@ const navigation: NavigationItem[] = [
   },
 ];
 
-const accountNavigation: NavigationItem[] = [
-  {
-    label: "Profile",
-    path: "/app/profile",
-    icon: "◯",
-  },
-  {
-    label: "Settings",
-    path: "/app/settings",
-    icon: "⚙",
-  },
-  {
-    label: "Security",
-    path: "/app/security",
-    icon: "◈",
-  },
-  {
-    label: "Billing",
-    path: "/app/billing",
-    icon: "▭",
-  },
-];
+/*
+ * Billing is intentionally kept in the sidebar.
+ *
+ * Profile / Settings / Security are NOT sidebar items.
+ * Profile and Settings remain available from the top-right
+ * user menu.
+ */
+
 
 function AppLayout() {
   const location = useLocation();
@@ -93,6 +79,10 @@ function AppLayout() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
 
   const handleLogout = async () => {
     try {
@@ -107,15 +97,24 @@ function AppLayout() {
     }
   };
 
+  /* =========================================================
+     ACTIVE NAVIGATION
+  ========================================================= */
+
   const isActive = (path: string) => {
     if (path === "/app/dashboard") {
       return location.pathname === path;
     }
 
     return (
-      location.pathname === path || location.pathname.startsWith(`${path}/`)
+      location.pathname === path ||
+      location.pathname.startsWith(`${path}/`)
     );
   };
+
+  /* =========================================================
+     NAVIGATION
+  ========================================================= */
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -124,9 +123,24 @@ function AppLayout() {
     setProfileOpen(false);
   };
 
+  /* =========================================================
+     USER INITIALS
+  ========================================================= */
+
+  const userInitials =
+    (user?.displayName?.trim() || "User")
+      .split(" ")
+      .filter(Boolean)
+      .map((name) => name.charAt(0))
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
+
   return (
     <div className="app-shell">
-      {/* MOBILE OVERLAY */}
+      {/* =====================================================
+          MOBILE OVERLAY
+      ===================================================== */}
 
       {sidebarOpen && (
         <button
@@ -137,9 +151,17 @@ function AppLayout() {
         />
       )}
 
-      {/* SIDEBAR */}
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
 
-      <aside className={`app-sidebar ${sidebarOpen ? "app-sidebar-open" : ""}`}>
+      <aside
+        className={`app-sidebar ${
+          sidebarOpen ? "app-sidebar-open" : ""
+        }`}
+      >
+        {/* BRAND */}
+
         <div className="app-sidebar-brand">
           <button
             type="button"
@@ -161,7 +183,9 @@ function AppLayout() {
           </button>
         </div>
 
-        {/* MAIN NAVIGATION */}
+        {/* ===================================================
+            NAVIGATION
+        =================================================== */}
 
         <nav className="app-navigation">
           <span className="app-nav-label">YOUR SPACE</span>
@@ -170,7 +194,9 @@ function AppLayout() {
             <button
               key={item.path}
               type="button"
-              className={`app-nav-item ${isActive(item.path) ? "active" : ""}`}
+              className={`app-nav-item ${
+                isActive(item.path) ? "active" : ""
+              }`}
               onClick={() => handleNavigate(item.path)}
             >
               <span className="app-nav-icon">{item.icon}</span>
@@ -179,23 +205,14 @@ function AppLayout() {
             </button>
           ))}
 
-          <span className="app-nav-label app-nav-account-label">ACCOUNT</span>
+        
 
-          {accountNavigation.map((item) => (
-            <button
-              key={item.path}
-              type="button"
-              className={`app-nav-item ${isActive(item.path) ? "active" : ""}`}
-              onClick={() => handleNavigate(item.path)}
-            >
-              <span className="app-nav-icon">{item.icon}</span>
-
-              <span>{item.label}</span>
-            </button>
-          ))}
+          
         </nav>
 
-        {/* SIDEBAR FOOTER */}
+        {/* ===================================================
+            SIDEBAR FOOTER
+        =================================================== */}
 
         <div className="app-sidebar-footer">
           <div className="app-storage">
@@ -228,9 +245,13 @@ function AppLayout() {
         </div>
       </aside>
 
-      {/* MAIN */}
+      {/* =====================================================
+          MAIN AREA
+      ===================================================== */}
 
       <div className="app-main">
+        {/* HEADER */}
+
         <header className="app-header">
           <div className="app-header-left">
             <button
@@ -245,11 +266,19 @@ function AppLayout() {
             <div className="app-breadcrumb">
               <span>EchoLife</span>
 
-              <span className="app-breadcrumb-separator">/</span>
+              <span className="app-breadcrumb-separator">
+                /
+              </span>
 
-              <strong>{getPageTitle(location.pathname)}</strong>
+              <strong>
+                {getPageTitle(location.pathname)}
+              </strong>
             </div>
           </div>
+
+          {/* =================================================
+              HEADER RIGHT
+          ================================================= */}
 
           <div className="app-header-right">
             <button
@@ -266,56 +295,71 @@ function AppLayout() {
               <button
                 type="button"
                 className="app-profile-button"
-                onClick={() => setProfileOpen((current) => !current)}
+                onClick={() =>
+                  setProfileOpen((current) => !current)
+                }
+                aria-expanded={profileOpen}
+                aria-haspopup="menu"
               >
                 <span className="app-profile-avatar">
-                  {(user?.displayName?.trim() || "User")
-                    .split(" ")
-                    .map((name) => name.charAt(0))
-                    .join("")
-                    .slice(0, 2)
-                    .toUpperCase()}
+                  {userInitials}
                 </span>
 
                 <span className="app-profile-info">
-                  <strong>{user?.displayName?.trim() || "User"}</strong>
+                  <strong>
+                    {user?.displayName?.trim() || "User"}
+                  </strong>
 
-                  <small>{user?.role || "Member"}</small>
+                  <small>
+                    {user?.role || "Member"}
+                  </small>
                 </span>
 
                 <ChevronDown
                   size={13}
-                  className={profileOpen ? "rotate" : ""}
+                  className={
+                    profileOpen ? "rotate" : ""
+                  }
                 />
               </button>
 
+              {/* USER MENU */}
+
               {profileOpen && (
-                <div className="app-profile-menu">
+                <div
+                  className="app-profile-menu"
+                  role="menu"
+                >
                   <button
                     type="button"
+                    role="menuitem"
                     onClick={() => {
                       setProfileOpen(false);
                       handleNavigate("/app/profile");
                     }}
                   >
-                    Profile
+                    <span className="app-profile-menu-dot profile" />
+                    <span>Profile</span>
                   </button>
 
                   <button
                     type="button"
+                    role="menuitem"
                     onClick={() => {
                       setProfileOpen(false);
                       handleNavigate("/app/settings");
                     }}
                   >
-                    Settings
+                    <span className="app-profile-menu-dot settings" />
+                    <span>Settings</span>
                   </button>
 
-                  <div />
+                  <div className="app-profile-menu-divider" />
 
                   <button
                     type="button"
                     className="danger"
+                    role="menuitem"
                     onClick={handleLogout}
                   >
                     <LogOut size={15} />
@@ -327,6 +371,8 @@ function AppLayout() {
             </div>
           </div>
         </header>
+
+        {/* PAGE CONTENT */}
 
         <div className="app-content">
           <Outlet />
@@ -340,17 +386,13 @@ function AppLayout() {
   );
 }
 
+/* =========================================================
+   PAGE TITLES
+========================================================= */
+
 function getPageTitle(pathname: string): string {
   if (pathname === "/app/dashboard") {
     return "Dashboard";
-  }
-
-  if (pathname.startsWith("/app/vault")) {
-    return "Memory Vault";
-  }
-
-  if (pathname.startsWith("/app/time-capsule")) {
-    return "Time Capsules";
   }
 
   if (pathname.startsWith("/app/family")) {
@@ -401,12 +443,15 @@ function getPageTitle(pathname: string): string {
     return "Profile";
   }
 
-  if (pathname.startsWith("/app/settings")) {
-    return "Settings";
+  if (
+    pathname.startsWith("/app/settings/security") ||
+    pathname.startsWith("/app/security")
+  ) {
+    return "Security";
   }
 
-  if (pathname.startsWith("/app/security")) {
-    return "Security";
+  if (pathname.startsWith("/app/settings")) {
+    return "Settings";
   }
 
   if (pathname.startsWith("/app/billing")) {

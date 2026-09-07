@@ -1,4 +1,9 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
 /* =========================================================
    LAYOUT
@@ -34,7 +39,7 @@ import DashboardPage from "./features/dashboard/DashboardPage";
 import OnboardingPage from "./features/onboarding/pages/OnboardingPage";
 
 /* =========================================================
-   VAULT / MEMORIES
+   MEMORY / VAULT
 ========================================================= */
 
 import { MemoryProvider } from "./features/vault/MemoryContext";
@@ -72,17 +77,13 @@ import SessionDetailsPage from "./features/session/SessionDetailsPage";
 import SessionConversationPage from "./features/session/SessionConversationPage";
 
 /* =========================================================
-   PROMPTS
-========================================================= */
-
-/* =========================================================
    LEGACY
 ========================================================= */
 
 import LegacyContactsPage from "./features/legacy/LegacyContactsPage";
 
 /* =========================================================
-   PROFILE / SETTINGS / SECURITY
+   PROFILE / SETTINGS
 ========================================================= */
 
 import ProfilePage from "./features/profile/ProfilePage";
@@ -103,7 +104,12 @@ import { PersonaProvider } from "./features/persona/PersonaContext";
 
 import PersonaPage from "./features/persona/PersonaPage";
 import PersonaConfigurePage from "./features/persona/PersonaConfigurePage";
-import PersonaConversationPage from "./features/persona/PersonaConversationPage";
+
+import PersonaOverview from "./features/persona/pages/PersonaOverview";
+import PersonaMemoriesPage from "./features/persona/pages/PersonaMemoriesPage";
+import PersonaTimeCapsulesPage from "./features/persona/pages/PersonaTimeCapsulesPage";
+import PersonaConversationsPage from "./features/persona/pages/PersonaConversationPage";
+import PersonaConversationPage from "./features/persona/pages/PersonaConversationPage";
 
 /* =========================================================
    REPORTS / BILLING
@@ -125,16 +131,26 @@ function App() {
             <TimeCapsuleProvider>
               <PersonaProvider>
                 <Routes>
+
                   {/* =====================================================
-                     PUBLIC ROUTES
+                     PUBLIC
                   ===================================================== */}
 
                   <Route element={<PublicRoute />}>
-                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                      path="/login"
+                      element={<LoginPage />}
+                    />
 
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route
+                      path="/register"
+                      element={<RegisterPage />}
+                    />
 
-                    <Route path="/mfa" element={<MFAPage />} />
+                    <Route
+                      path="/mfa"
+                      element={<MFAPage />}
+                    />
 
                     <Route
                       path="/forgot-password"
@@ -146,32 +162,44 @@ function App() {
                       element={<ResetPasswordPage />}
                     />
 
-                    <Route path="/onboarding" element={<OnboardingPage />} />
+                    <Route
+                      path="/onboarding"
+                      element={<OnboardingPage />}
+                    />
                   </Route>
 
                   {/* =====================================================
-                     PROTECTED ROUTES
+                     PROTECTED
                   ===================================================== */}
 
                   <Route element={<ProtectedRoute />}>
-                    {/* ===================================================
-                       APPLICATION LAYOUT
-                    =================================================== */}
+                    <Route
+                      path="/app"
+                      element={<AppLayout />}
+                    >
+                      {/* DASHBOARD */}
 
-                    <Route path="/app" element={<AppLayout />}>
+                      <Route
+                        path="dashboard"
+                        element={<DashboardPage />}
+                      />
+
+                      {/* MFA */}
+
+                      <Route
+                        path="mfa/setup"
+                        element={<MFASetupPage />}
+                      />
+
                       {/* =================================================
-                         DASHBOARD
+                         LEGACY VAULT ROUTES
+                         Kept for compatibility.
                       ================================================= */}
 
-                      <Route path="dashboard" element={<DashboardPage />} />
-
-                      <Route path="mfa/setup" element={<MFASetupPage />} />
-
-                      {/* =================================================
-                         MEMORY VAULT
-                      ================================================= */}
-
-                      <Route path="vault" element={<MemoryVaultPage />} />
+                      <Route
+                        path="vault"
+                        element={<MemoryVaultPage />}
+                      />
 
                       <Route
                         path="vault/upload"
@@ -183,20 +211,17 @@ function App() {
                         element={<MemoryDetailsPage />}
                       />
 
-                      {/* =================================================
-                         TIME CAPSULE
-                      ================================================= */}
-
                       <Route
                         path="time-capsule"
                         element={<TimeCapsulePage />}
                       />
 
-                      {/* =================================================
-                         FAMILY
-                      ================================================= */}
+                      {/* FAMILY */}
 
-                      <Route path="family" element={<FamilyPage />} />
+                      <Route
+                        path="family"
+                        element={<FamilyPage />}
+                      />
 
                       <Route
                         path="family/new"
@@ -205,30 +230,107 @@ function App() {
 
                       <Route
                         path="family/:memberId"
-                        element={<FamilyMemberDetailsPage />}
+                        element={
+                          <FamilyMemberDetailsPage />
+                        }
                       />
 
                       {/* =================================================
-                         PERSONA
+                         AI PERSONA WORKSPACE
                       ================================================= */}
 
-                      <Route path="persona" element={<PersonaPage />} />
+                      <Route
+                        path="persona"
+                        element={<PersonaPage />}
+                      >
+                        {/* /app/persona */}
+
+                        <Route
+                          index
+                          element={<PersonaOverview />}
+                        />
+
+                        {/* /app/persona/memories */}
+
+                        <Route
+                          path="memories"
+                          element={
+                            <PersonaMemoriesPage />
+                          }
+                        />
+
+                        {/* /app/persona/memories/upload */}
+
+                        <Route
+                          path="memories/upload"
+                          element={
+                            <UploadMemoryPage />
+                          }
+                        />
+
+                        {/* /app/persona/memories/:memoryId */}
+
+                        <Route
+                          path="memories/:memoryId"
+                          element={
+                            <MemoryDetailsPage />
+                          }
+                        />
+
+                        {/* /app/persona/time-capsules */}
+
+                        <Route
+                          path="time-capsules"
+                          element={
+                            <PersonaTimeCapsulesPage />
+                          }
+                        />
+
+                        {/* /app/persona/conversations */}
+
+                        <Route
+                          path="conversations"
+                          element={
+                            <PersonaConversationsPage />
+                          }
+                        />
+
+                        {/* /app/persona/conversation */}
+
+                        <Route
+                          path="conversation"
+                          element={
+                            <PersonaConversationPage />
+                          }
+                        />
+
+                        {/* /app/persona/conversation/:sessionId */}
+
+                        <Route
+                          path="conversation/:sessionId"
+                          element={
+                            <PersonaConversationPage />
+                          }
+                        />
+                      </Route>
+
+                      {/* PERSONA CONFIGURATION */}
 
                       <Route
                         path="persona/configure"
-                        element={<PersonaConfigurePage />}
-                      />
-
-                      <Route
-                        path="persona/conversation/:sessionId"
-                        element={<PersonaConversationPage />}
+                        element={
+                          <PersonaConfigurePage />
+                        }
                       />
 
                       {/* =================================================
                          AI
                       ================================================= */}
 
-                      <Route path="ai-session" element={<AISessionPage />} />
+                      <Route
+                        path="ai-session"
+                        element={<AISessionPage />}
+                      />
 
                       <Route
                         path="ai-reflection"
@@ -236,14 +338,13 @@ function App() {
                       />
 
                       {/* =================================================
-                         DAILY PROMPT
-                      ================================================= */}
-
-                      {/* =================================================
                          SESSIONS
                       ================================================= */}
 
-                      <Route path="sessions" element={<SessionsPage />} />
+                      <Route
+                        path="sessions"
+                        element={<SessionsPage />}
+                      />
 
                       <Route
                         path="sessions/:sessionId"
@@ -252,50 +353,73 @@ function App() {
 
                       <Route
                         path="sessions/:sessionId/conversation"
-                        element={<SessionConversationPage />}
+                        element={
+                          <SessionConversationPage />
+                        }
                       />
 
                       {/* =================================================
                          REPORTS
                       ================================================= */}
 
-                      <Route path="reports" element={<ReportsPage />} />
+                      <Route
+                        path="reports"
+                        element={<ReportsPage />}
+                      />
 
                       {/* =================================================
                          LEGACY
                       ================================================= */}
 
-                      <Route path="legacy" element={<LegacyContactsPage />} />
+                      <Route
+                        path="legacy"
+                        element={<LegacyContactsPage />}
+                      />
 
                       {/* =================================================
                          ACTIVITY
                       ================================================= */}
 
-                      <Route path="activity" element={<ActivityPage />} />
+                      <Route
+                        path="activity"
+                        element={<ActivityPage />}
+                      />
 
                       {/* =================================================
                          SECURITY
                       ================================================= */}
 
-                      <Route path="security" element={<SecurityPage />} />
+                      <Route
+                        path="security"
+                        element={<SecurityPage />}
+                      />
 
                       {/* =================================================
                          BILLING
                       ================================================= */}
 
-                      <Route path="billing" element={<BillingPage />} />
+                      <Route
+                        path="billing"
+                        element={<BillingPage />}
+                      />
 
                       {/* =================================================
                          PROFILE
                       ================================================= */}
 
-                      <Route path="profile" element={<ProfilePage />} />
+                      <Route
+                        path="profile"
+                        element={<ProfilePage />}
+                      />
 
                       {/* =================================================
                          SETTINGS
                       ================================================= */}
 
-                      <Route path="settings" element={<SettingsPage />} />
+                      <Route
+                        path="settings"
+                        element={<SettingsPage />}
+                      />
                     </Route>
                   </Route>
 
@@ -305,16 +429,26 @@ function App() {
 
                   <Route
                     path="/"
-                    element={<Navigate to="/app/dashboard" replace />}
+                    element={
+                      <Navigate
+                        to="/app/dashboard"
+                        replace
+                      />
+                    }
                   />
 
                   {/* =====================================================
-                     UNKNOWN ROUTE
+                     UNKNOWN
                   ===================================================== */}
 
                   <Route
                     path="*"
-                    element={<Navigate to="/app/dashboard" replace />}
+                    element={
+                      <Navigate
+                        to="/app/dashboard"
+                        replace
+                      />
+                    }
                   />
                 </Routes>
               </PersonaProvider>
