@@ -101,6 +101,25 @@ export async function confirmMfa(code: string): Promise<void> {
     code,
   });
 }
+/* =========================================================
+   MFA DISABLE
+   Backend:
+   POST /api/v1/auth/mfa/disable
+
+   Requires:
+   - Current password
+   - Current TOTP code
+   ========================================================= */
+
+export async function disableMfa(
+  password: string,
+  code: string,
+): Promise<void> {
+  await api.post("/api/v1/auth/mfa/disable", {
+    password,
+    code,
+  });
+}
 
 /* =========================================================
    FORGOT PASSWORD

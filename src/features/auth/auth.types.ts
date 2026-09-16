@@ -12,7 +12,7 @@ export interface User {
   role: string;
 
   status: string;
-
+ mfaEnabled?: boolean;
   mfaVerified?: boolean;
 
   active?: boolean;
@@ -82,6 +82,7 @@ export interface CurrentUser {
   name: string;
 
   role: string;
+  mfaEnabled?: boolean;
 
   mfaVerified: boolean;
 

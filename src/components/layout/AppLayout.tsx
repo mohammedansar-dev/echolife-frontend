@@ -45,16 +45,12 @@ const navigation: NavigationItem[] = [
     path: "/app/sessions",
     icon: "◉",
   },
-  {
-    label: "Reports",
-    path: "/app/reports",
-    icon: "▤",
-  },
-  {
-    label: "Legacy",
-    path: "/app/legacy",
-    icon: "♡",
-  },
+  
+  // {
+  //   label: "Legacy",
+  //   path: "/app/legacy",
+  //   icon: "♡",
+  // },
   {
     label: "Activity",
     path: "/app/activity",
@@ -427,9 +423,7 @@ function getPageTitle(pathname: string): string {
     return "AI Reflection";
   }
 
-  if (pathname.startsWith("/app/reports")) {
-    return "Reports";
-  }
+  
 
   if (pathname.startsWith("/app/legacy")) {
     return "Legacy";
